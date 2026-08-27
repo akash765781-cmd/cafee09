@@ -68,7 +68,7 @@ const statusSteps = [
 
 export function OrderFormSection() {
   const { items, total, removeItem, updateQuantity, clearCart } = useCart();
-  const { orders, addOrder, cancelOrder } = useOrders();
+  const { orders, addOrder, cancelOrder, deleteOrder } = useOrders();
 
   const [activeTab, setActiveTab] = useState<"order" | "track">("order");
   const [form, setForm] = useState<OrderForm>({ name: "", phone: "", address: "" });
@@ -623,6 +623,21 @@ export function OrderFormSection() {
                             >
                               <XCircle className="size-3.5" />
                               Cancel Order
+                            </button>
+                          )}
+                          {(isCancelled || order.status === "Delivered") && (
+                            <button
+                              onClick={() => {
+                                if (confirm(`Remove order ${order.id} from your view?`)) {
+                                  deleteOrder(order.id);
+                                  toast.success("Order record cleared from your device.");
+                                }
+                              }}
+                              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive border border-border hover:border-destructive/30 px-2.5 py-1.5 rounded-sm transition-colors"
+                              title="Delete this order record from your device"
+                            >
+                              <Trash2 className="size-3.5" />
+                              Clear Record
                             </button>
                           )}
                         </div>

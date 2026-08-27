@@ -46,12 +46,48 @@ class OrderStore {
   async syncFromServer() {
     try {
       const serverOrders = await getOrdersServer();
-      const localStr = JSON.stringify(this.orders);
-      const serverStr = JSON.stringify(serverOrders);
-      
-      if (localStr !== serverStr) {
-        this.orders = serverOrders;
+
+      // Case 1: Server has no orders (e.g. serverless cold start), but client has local orders.
+      // Do NOT wipe local orders! Repopulate the server with client's saved orders.
+      if ((!serverOrders || serverOrders.length === 0) && this.orders.length > 0) {
+        setOrdersServer({ data: this.orders }).catch(() => {});
+        return;
+      }
+
+      if (!serverOrders) return;
+
+      // Case 2: Intelligent Merge (Order ID based)
+      let changed = false;
+      const orderMap = new Map<string, Order>();
+
+      // Load existing local orders first
+      for (const localOrder of this.orders) {
+        orderMap.set(localOrder.id, localOrder);
+      }
+
+      // Merge server orders
+      for (const sOrder of serverOrders) {
+        const localOrder = orderMap.get(sOrder.id);
+        if (!localOrder) {
+          // New order from another device
+          orderMap.set(sOrder.id, sOrder);
+          changed = true;
+        } else {
+          // Existing order: update status if changed by Admin or server
+          if (localOrder.status !== sOrder.status) {
+            orderMap.set(sOrder.id, { ...localOrder, status: sOrder.status });
+            changed = true;
+          }
+        }
+      }
+
+      if (changed || orderMap.size !== this.orders.length) {
+        // Convert map back to array sorted by creation date / ID
+        const merged = Array.from(orderMap.values());
+        this.orders = merged;
         this.notify();
+        // Keep server updated with full merged list
+        setOrdersServer({ data: merged }).catch(() => {});
       }
     } catch (e) {
       console.error("Failed to sync orders from server:", e);
