@@ -1,6 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import * as fs from "fs";
-import * as path from "path";
 import { Order } from "./orders";
 
 // Types for reviews
@@ -19,42 +17,18 @@ let inMemoryDb = {
   storeClosed: false
 };
 
-const DEV_DB_PATH = path.resolve(process.cwd(), ".tanstack/dev_db.json");
-
-// Helper to load/save locally in dev
-function loadLocal() {
-  try {
-    if (fs.existsSync(DEV_DB_PATH)) {
-      const raw = fs.readFileSync(DEV_DB_PATH, "utf-8");
-      inMemoryDb = JSON.parse(raw);
-    }
-  } catch (e) {
-    console.error("Local DB load error:", e);
-  }
-}
-
-function saveLocal() {
-  try {
-    const dir = path.dirname(DEV_DB_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(DEV_DB_PATH, JSON.stringify(inMemoryDb, null, 2), "utf-8");
-  } catch (e) {
-    console.error("Local DB save error:", e);
-  }
-}
-
-// Initialize on server load
-if (typeof window === "undefined") {
-  loadLocal();
-}
-
 // REST KV Helpers for Vercel KV
-const KV_URL = process.env.KV_REST_API_URL || "";
-const KV_TOKEN = process.env.KV_REST_API_TOKEN || "";
+function getEnv(key: string): string {
+  if (typeof process !== "undefined" && process.env) {
+    return process.env[key] || "";
+  }
+  return "";
+}
 
 async function kvGet<T>(key: string, defaultValue: T): Promise<T> {
+  const KV_URL = getEnv("KV_REST_API_URL");
+  const KV_TOKEN = getEnv("KV_REST_API_TOKEN");
+
   if (KV_URL && KV_TOKEN) {
     try {
       const res = await fetch(`${KV_URL}/get/${key}`, {
@@ -71,7 +45,7 @@ async function kvGet<T>(key: string, defaultValue: T): Promise<T> {
     }
   }
   
-  // Fallback to in-memory/local
+  // Fallback to in-memory
   if (key === "uk09_orders") return inMemoryDb.orders as any;
   if (key === "uk09_reviews") return inMemoryDb.reviews as any;
   if (key === "uk09_store_closed") return inMemoryDb.storeClosed as any;
@@ -83,9 +57,9 @@ async function kvSet(key: string, value: any) {
   if (key === "uk09_orders") inMemoryDb.orders = value;
   if (key === "uk09_reviews") inMemoryDb.reviews = value;
   if (key === "uk09_store_closed") inMemoryDb.storeClosed = value;
-  
-  // Save local file
-  saveLocal();
+
+  const KV_URL = getEnv("KV_REST_API_URL");
+  const KV_TOKEN = getEnv("KV_REST_API_TOKEN");
 
   if (KV_URL && KV_TOKEN) {
     try {
