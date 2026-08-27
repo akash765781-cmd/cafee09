@@ -330,21 +330,9 @@ function AdminPage() {
 
         {/* Orders Log & Status Control */}
         <div className="bg-card border border-border rounded-sm p-6 space-y-6">
-          <div className="flex items-center justify-between border-b border-border pb-4">
-            <div className="flex items-center gap-2.5">
-              <ShoppingBag className="size-5 text-primary" />
-              <h2 className="font-display text-lg font-bold uppercase">Customer Orders Log</h2>
-            </div>
-            {orders.length > 0 && (
-              <button
-                onClick={handleResetOrders}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-destructive bg-destructive/10 hover:bg-destructive hover:text-white border border-destructive/30 rounded-sm transition-colors"
-                title="Reset & Delete All Orders Data"
-              >
-                <Trash2 className="size-3.5" />
-                Reset All Orders Data
-              </button>
-            )}
+          <div className="flex items-center gap-2.5 border-b border-border pb-4">
+            <ShoppingBag className="size-5 text-primary" />
+            <h2 className="font-display text-lg font-bold uppercase">Customer Orders Log</h2>
           </div>
 
           {orders.length === 0 ? (

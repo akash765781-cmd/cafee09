@@ -6,8 +6,8 @@ import { n as FoodFeature, r as Gallery, t as AboutSection } from "./FoodFeature
 import { g as Link } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as LocationSection, t as InfoStrip } from "./LocationSection-DhfFSGrU.mjs";
 import { t as MenuSection } from "./MenuSection-vi3OWOGp.mjs";
-import { t as ReviewsSection } from "./ReviewsSection-DymK7yIu.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-CcRQ4yao.js
+import { t as ReviewsSection } from "./ReviewsSection-BF0AOfCo.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-EpZRnZc3.js
 var import_jsx_runtime = require_jsx_runtime();
 var hero_default = "/assets/hero-Bsk-G7Gn.jpg";
 function Hero() {

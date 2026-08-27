@@ -2,8 +2,8 @@ import { r as require_jsx_runtime } from "../_libs/react+tanstack__react-query.m
 import { t as PageHeader } from "./PageHeader-DUEAwHLy.mjs";
 import { t as business } from "./business-ChH5vSRw.mjs";
 import { t as CTASection } from "./CTASection-gpAVbZFC.mjs";
-import { t as ReviewsSection } from "./ReviewsSection-DymK7yIu.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/reviews-Cb8TwmNu.js
+import { t as ReviewsSection } from "./ReviewsSection-BF0AOfCo.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/reviews-DfLMo5YC.js
 var import_jsx_runtime = require_jsx_runtime();
 function ReviewsPage() {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [

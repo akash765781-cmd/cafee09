@@ -3,9 +3,9 @@ import { n as require_react, r as require_jsx_runtime } from "../_libs/react+tan
 import { i as reviewThemes, t as business } from "./business-ChH5vSRw.mjs";
 import { g as MessageSquarePlus, o as Star } from "../_libs/lucide-react.mjs";
 import { n as Reveal } from "./CTASection-gpAVbZFC.mjs";
-import { a as setReviewsServer, n as getReviewsServer } from "./db-BgJMkMYJ.mjs";
+import { o as setReviewsServer, r as getReviewsServer } from "./db-BYqa_-z5.mjs";
 import { n as toast } from "../_libs/sonner.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/ReviewsSection-DymK7yIu.js
+//#region node_modules/.nitro/vite/services/ssr/assets/ReviewsSection-BF0AOfCo.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var initialReviews = [

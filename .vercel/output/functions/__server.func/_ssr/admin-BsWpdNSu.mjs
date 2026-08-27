@@ -1,10 +1,10 @@
 import { r as __toESM } from "../_runtime.mjs";
 import { n as require_react, r as require_jsx_runtime } from "../_libs/react+tanstack__react-query.mjs";
 import { a as Trash2, b as LogOut, c as Shield, d as RefreshCw, h as MessageSquare, i as TrendingUp, l as Settings, n as User, s as ShoppingBag, w as CircleX, x as Lock } from "../_libs/lucide-react.mjs";
-import { a as setReviewsServer, n as getReviewsServer, o as setStoreClosedServer, r as getStoreClosedServer } from "./db-BgJMkMYJ.mjs";
-import { t as useOrders } from "./orders-DxLrvOfG.mjs";
+import { i as getStoreClosedServer, o as setReviewsServer, r as getReviewsServer, s as setStoreClosedServer } from "./db-BYqa_-z5.mjs";
+import { t as useOrders } from "./orders-xKFlKcoR.mjs";
 import { n as toast } from "../_libs/sonner.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/admin-jg9aWOUk.js
+//#region node_modules/.nitro/vite/services/ssr/assets/admin-BsWpdNSu.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function AdminPage() {
@@ -289,18 +289,10 @@ function AdminPage() {
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 					className: "bg-card border border-border rounded-sm p-6 space-y-6",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex items-center justify-between border-b border-border pb-4",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "flex items-center gap-2.5",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ShoppingBag, { className: "size-5 text-primary" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-								className: "font-display text-lg font-bold uppercase",
-								children: "Customer Orders Log"
-							})]
-						}), orders.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-							onClick: handleResetOrders,
-							className: "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-destructive bg-destructive/10 hover:bg-destructive hover:text-white border border-destructive/30 rounded-sm transition-colors",
-							title: "Reset & Delete All Orders Data",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trash2, { className: "size-3.5" }), "Reset All Orders Data"]
+						className: "flex items-center gap-2.5 border-b border-border pb-4",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ShoppingBag, { className: "size-5 text-primary" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+							className: "font-display text-lg font-bold uppercase",
+							children: "Customer Orders Log"
 						})]
 					}), orders.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 						className: "p-8 text-center text-muted-foreground text-xs",

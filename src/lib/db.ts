@@ -10,11 +10,19 @@ export interface Review {
   date: string;
 }
 
+export interface SyncState {
+  orders: Order[];
+  deletedOrderIds: string[];
+  lastClearedAt: number;
+}
+
 // In-memory fallback
 let inMemoryDb = {
   orders: [] as Order[],
   reviews: [] as Review[],
-  storeClosed: false
+  storeClosed: false,
+  deletedOrderIds: [] as string[],
+  lastClearedAt: 0
 };
 
 // REST KV Helpers for Vercel KV
@@ -49,6 +57,8 @@ async function kvGet<T>(key: string, defaultValue: T): Promise<T> {
   if (key === "uk09_orders") return inMemoryDb.orders as any;
   if (key === "uk09_reviews") return inMemoryDb.reviews as any;
   if (key === "uk09_store_closed") return inMemoryDb.storeClosed as any;
+  if (key === "uk09_deleted_order_ids") return inMemoryDb.deletedOrderIds as any;
+  if (key === "uk09_last_cleared_at") return inMemoryDb.lastClearedAt as any;
   return defaultValue;
 }
 
@@ -57,6 +67,8 @@ async function kvSet(key: string, value: any) {
   if (key === "uk09_orders") inMemoryDb.orders = value;
   if (key === "uk09_reviews") inMemoryDb.reviews = value;
   if (key === "uk09_store_closed") inMemoryDb.storeClosed = value;
+  if (key === "uk09_deleted_order_ids") inMemoryDb.deletedOrderIds = value;
+  if (key === "uk09_last_cleared_at") inMemoryDb.lastClearedAt = value;
 
   const KV_URL = getEnv("KV_REST_API_URL");
   const KV_TOKEN = getEnv("KV_REST_API_TOKEN");
@@ -82,14 +94,32 @@ async function kvSet(key: string, value: any) {
 
 // Server Functions
 export const getOrdersServer = createServerFn({ method: "GET" })
-  .handler(async (): Promise<Order[]> => {
-    return await kvGet<Order[]>("uk09_orders", []);
+  .handler(async (): Promise<SyncState> => {
+    const orders = await kvGet<Order[]>("uk09_orders", []);
+    const deletedOrderIds = await kvGet<string[]>("uk09_deleted_order_ids", []);
+    const lastClearedAt = await kvGet<number>("uk09_last_cleared_at", 0);
+    return { orders, deletedOrderIds, lastClearedAt };
   });
 
 export const setOrdersServer = createServerFn({ method: "POST" })
-  .handler(async ({ data: orders }: { data: Order[] }) => {
-    await kvSet("uk09_orders", orders);
+  .handler(async ({ data }: { data: { orders: Order[]; deletedOrderIds?: string[]; lastClearedAt?: number } }) => {
+    await kvSet("uk09_orders", data.orders);
+    if (data.deletedOrderIds) {
+      await kvSet("uk09_deleted_order_ids", data.deletedOrderIds);
+    }
+    if (typeof data.lastClearedAt === "number") {
+      await kvSet("uk09_last_cleared_at", data.lastClearedAt);
+    }
     return { success: true };
+  });
+
+export const clearAllOrdersServer = createServerFn({ method: "POST" })
+  .handler(async () => {
+    const now = Date.now();
+    await kvSet("uk09_orders", []);
+    await kvSet("uk09_deleted_order_ids", []);
+    await kvSet("uk09_last_cleared_at", now);
+    return { success: true, lastClearedAt: now };
   });
 
 export const getReviewsServer = createServerFn({ method: "GET" })

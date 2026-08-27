@@ -3,10 +3,10 @@ import { n as require_react, r as require_jsx_runtime } from "../_libs/react+tan
 import { t as business } from "./business-ChH5vSRw.mjs";
 import { C as Clock, D as Bike, E as ChefHat, S as LoaderCircle, T as CircleCheckBig, a as Trash2, f as Plus, m as Minus, n as User, p as Phone, r as TriangleAlert, s as ShoppingBag, u as Search, w as CircleX, y as MapPin } from "../_libs/lucide-react.mjs";
 import { n as Reveal, t as CTASection } from "./CTASection-gpAVbZFC.mjs";
-import { t as useOrders } from "./orders-DxLrvOfG.mjs";
+import { t as useOrders } from "./orders-xKFlKcoR.mjs";
 import { n as toast } from "../_libs/sonner.mjs";
 import { t as useCart } from "./cart-C9zTcxRu.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/order-BZd9_YiR.js
+//#region node_modules/.nitro/vite/services/ssr/assets/order-n_30Hbhm.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function validate(form) {
@@ -577,17 +577,8 @@ function OrderFormSection() {
 							children: "View real-time progress or cancel active orders."
 						})] }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 							className: "flex flex-wrap items-center gap-3 w-full sm:w-auto",
-							children: [orders.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-								onClick: () => {
-									if (confirm("Are you sure you want to clear all order history from your device?")) {
-										clearAllOrders();
-										toast.success("All order history cleared.");
-									}
-								},
-								className: "inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-destructive bg-destructive/10 hover:bg-destructive hover:text-white border border-destructive/30 rounded-sm transition-colors",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trash2, { className: "size-3.5" }), "Clear All Orders"]
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "relative flex-1 sm:w-64",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "relative w-full sm:w-64",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { className: "absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 									type: "text",
 									placeholder: "Search Order ID / Phone...",
@@ -595,6 +586,16 @@ function OrderFormSection() {
 									onChange: (e) => setSearchQuery(e.target.value),
 									className: "w-full pl-9 pr-4 py-2 bg-card text-xs text-foreground placeholder:text-muted-foreground/60 rounded-sm border border-border focus:border-primary focus:outline-none"
 								})]
+							}), orders.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+								onClick: () => {
+									if (confirm("Are you sure you want to clear all your order history?")) {
+										clearAllOrders();
+										toast.success("Order history cleared.");
+									}
+								},
+								className: "inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-destructive border border-border hover:border-destructive/40 rounded-sm transition-colors",
+								title: "Clear all orders from your view",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trash2, { className: "size-3.5" }), "Clear All"]
 							})]
 						})]
 					}), filteredOrders.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
