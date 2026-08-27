@@ -68,7 +68,7 @@ const statusSteps = [
 
 export function OrderFormSection() {
   const { items, total, removeItem, updateQuantity, clearCart } = useCart();
-  const { orders, addOrder, cancelOrder, deleteOrder } = useOrders();
+  const { orders, addOrder, cancelOrder, deleteOrder, clearAllOrders } = useOrders();
 
   const [activeTab, setActiveTab] = useState<"order" | "track">("order");
   const [form, setForm] = useState<OrderForm>({ name: "", phone: "", address: "" });
@@ -551,16 +551,33 @@ export function OrderFormSection() {
                 </p>
               </div>
 
-              {/* Search Bar */}
-              <div className="relative w-full sm:w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-                <input
-                  type="text"
-                  placeholder="Search Order ID / Phone..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 bg-card text-xs text-foreground placeholder:text-muted-foreground/60 rounded-sm border border-border focus:border-primary focus:outline-none"
-                />
+              {/* Actions & Search */}
+              <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                {orders.length > 0 && (
+                  <button
+                    onClick={() => {
+                      if (confirm("Are you sure you want to clear all order history from your device?")) {
+                        clearAllOrders();
+                        toast.success("All order history cleared.");
+                      }
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-destructive bg-destructive/10 hover:bg-destructive hover:text-white border border-destructive/30 rounded-sm transition-colors"
+                  >
+                    <Trash2 className="size-3.5" />
+                    Clear All Orders
+                  </button>
+                )}
+
+                <div className="relative flex-1 sm:w-64">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+                  <input
+                    type="text"
+                    placeholder="Search Order ID / Phone..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2 bg-card text-xs text-foreground placeholder:text-muted-foreground/60 rounded-sm border border-border focus:border-primary focus:outline-none"
+                  />
+                </div>
               </div>
             </div>
 

@@ -4,7 +4,7 @@ import { a as Trash2, b as LogOut, c as Shield, d as RefreshCw, h as MessageSqua
 import { a as setReviewsServer, n as getReviewsServer, o as setStoreClosedServer, r as getStoreClosedServer } from "./db-BgJMkMYJ.mjs";
 import { t as useOrders } from "./orders-DxLrvOfG.mjs";
 import { n as toast } from "../_libs/sonner.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/admin-CtAV7QgN.js
+//#region node_modules/.nitro/vite/services/ssr/assets/admin-jg9aWOUk.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function AdminPage() {
@@ -289,10 +289,18 @@ function AdminPage() {
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 					className: "bg-card border border-border rounded-sm p-6 space-y-6",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex items-center gap-2.5 border-b border-border pb-4",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ShoppingBag, { className: "size-5 text-primary" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-							className: "font-display text-lg font-bold uppercase",
-							children: "Customer Orders Log"
+						className: "flex items-center justify-between border-b border-border pb-4",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "flex items-center gap-2.5",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ShoppingBag, { className: "size-5 text-primary" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+								className: "font-display text-lg font-bold uppercase",
+								children: "Customer Orders Log"
+							})]
+						}), orders.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+							onClick: handleResetOrders,
+							className: "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-destructive bg-destructive/10 hover:bg-destructive hover:text-white border border-destructive/30 rounded-sm transition-colors",
+							title: "Reset & Delete All Orders Data",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trash2, { className: "size-3.5" }), "Reset All Orders Data"]
 						})]
 					}), orders.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 						className: "p-8 text-center text-muted-foreground text-xs",
