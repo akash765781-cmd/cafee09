@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useOrders, OrderStatus } from "@/lib/orders";
+import { getReviewsServer, setReviewsServer, getStoreClosedServer, setStoreClosedServer, Review } from "@/lib/db";
 
 const title = "Admin Panel — UK 09 Restaurant, Bathinda";
 const description = "Secured dashboard for administrative management of UK 09.";
@@ -34,13 +35,6 @@ export const Route = createFileRoute("/admin")({
   }),
   component: AdminPage,
 });
-
-interface Review {
-  name: string;
-  rating: number;
-  text: string;
-  date: string;
-}
 
 function AdminPage() {
   const { orders, updateOrderStatus, deleteOrder, clearAllOrders, cancelOrder } = useOrders();
@@ -67,19 +61,25 @@ function AdminPage() {
         setIsAuthenticated(true);
       }
 
-      // Check reviews
-      const savedReviews = localStorage.getItem("uk09_reviews");
-      if (savedReviews) {
-        try {
-          setReviews(JSON.parse(savedReviews));
-        } catch {
-          // ignore
+      // Check reviews from server
+      getReviewsServer().then((serverReviews) => {
+        if (serverReviews && serverReviews.length > 0) {
+          setReviews(serverReviews);
+          localStorage.setItem("uk09_reviews", JSON.stringify(serverReviews));
+        } else {
+          // Fallback to local
+          const savedReviews = localStorage.getItem("uk09_reviews");
+          if (savedReviews) {
+            try { setReviews(JSON.parse(savedReviews)); } catch {}
+          }
         }
-      }
+      });
 
-      // Check store status
-      const closed = localStorage.getItem("uk09_store_closed") === "true";
-      setIsStoreClosed(closed);
+      // Check store status from server
+      getStoreClosedServer().then((closed) => {
+        setIsStoreClosed(closed);
+        localStorage.setItem("uk09_store_closed", String(closed));
+      });
 
       // Sim visitor count
       setSimulatedVisitors(Math.floor(124 + Math.random() * 800));
@@ -105,22 +105,35 @@ function AdminPage() {
     toast.info("Logged out successfully.");
   };
 
-  const toggleStoreStatus = () => {
+  const toggleStoreStatus = async () => {
     const nextState = !isStoreClosed;
     setIsStoreClosed(nextState);
     localStorage.setItem("uk09_store_closed", String(nextState));
-    toast.success(
-      nextState
-        ? "Store status set to CLOSED. Customers will see a warning."
-        : "Store status set to OPEN."
-    );
+    
+    try {
+      await setStoreClosedServer({ data: nextState });
+      toast.success(
+        nextState
+          ? "Store status set to CLOSED. Customers will see a warning."
+          : "Store status set to OPEN."
+      );
+    } catch (e) {
+      console.error("Failed to sync store status to server:", e);
+      toast.error("Failed to sync status to server.");
+    }
   };
 
-  const handleDeleteReview = (index: number) => {
+  const handleDeleteReview = async (index: number) => {
     const updated = reviews.filter((_, idx) => idx !== index);
     setReviews(updated);
     localStorage.setItem("uk09_reviews", JSON.stringify(updated));
-    toast.success("Review deleted successfully.");
+    
+    try {
+      await setReviewsServer({ data: updated });
+      toast.success("Review deleted successfully.");
+    } catch (e) {
+      console.error("Failed to delete review on server:", e);
+    }
   };
 
   const handleAdminCancelOrder = (orderId: string, customerName: string) => {
@@ -138,12 +151,17 @@ function AdminPage() {
     toast.success(`Order ${orderId} cancelled. Customer will be notified.`);
   };
 
-  const handleResetReviews = () => {
+  const handleResetReviews = async () => {
     if (confirm("Are you sure you want to reset all reviews to default settings?")) {
       localStorage.removeItem("uk09_reviews");
-      // Trigger reload from reviews component
       setReviews([]);
-      toast.success("Reviews database reset.");
+      
+      try {
+        await setReviewsServer({ data: [] });
+        toast.success("Reviews database reset.");
+      } catch (e) {
+        console.error("Failed to reset reviews on server:", e);
+      }
     }
   };
 
@@ -468,7 +486,7 @@ function AdminPage() {
                         ))}
                       </div>
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        {rev.text || "(No comment written)"}
+                        {rev.comment || rev.text || "(No comment written)"}
                       </p>
                     </div>
                     <button

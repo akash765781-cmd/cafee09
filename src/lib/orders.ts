@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { CartItem } from "./cart";
+import { getOrdersServer, setOrdersServer } from "./db";
 
 export type OrderStatus = "Received" | "Preparing" | "Out for Delivery" | "Delivered" | "Cancelled";
 
@@ -22,6 +23,7 @@ class OrderStore {
 
   constructor() {
     if (typeof window !== "undefined") {
+      // 1. Initial local load for instant UI feedback
       const saved = localStorage.getItem("uk09_orders");
       if (saved) {
         try {
@@ -30,6 +32,29 @@ class OrderStore {
           // ignore
         }
       }
+
+      // 2. Fetch fresh data from server
+      this.syncFromServer();
+
+      // 3. Keep syncing from server every 5 seconds (enables cross-device updates)
+      setInterval(() => {
+        this.syncFromServer();
+      }, 5000);
+    }
+  }
+
+  async syncFromServer() {
+    try {
+      const serverOrders = await getOrdersServer();
+      const localStr = JSON.stringify(this.orders);
+      const serverStr = JSON.stringify(serverOrders);
+      
+      if (localStr !== serverStr) {
+        this.orders = serverOrders;
+        this.notify();
+      }
+    } catch (e) {
+      console.error("Failed to sync orders from server:", e);
     }
   }
 
@@ -63,6 +88,12 @@ class OrderStore {
     };
     this.orders = [newOrder, ...this.orders];
     this.notify();
+    
+    // Push to server asynchronously
+    setOrdersServer({ data: this.orders }).catch((e) =>
+      console.error("Server save failed on addOrder:", e)
+    );
+
     return newOrder;
   };
 
@@ -71,6 +102,11 @@ class OrderStore {
       o.id === id ? { ...o, status: "Cancelled" as OrderStatus } : o
     );
     this.notify();
+
+    // Push to server asynchronously
+    setOrdersServer({ data: this.orders }).catch((e) =>
+      console.error("Server save failed on cancelOrder:", e)
+    );
   };
 
   updateOrderStatus = (id: string, status: OrderStatus) => {
@@ -78,16 +114,31 @@ class OrderStore {
       o.id === id ? { ...o, status } : o
     );
     this.notify();
+
+    // Push to server asynchronously
+    setOrdersServer({ data: this.orders }).catch((e) =>
+      console.error("Server save failed on updateOrderStatus:", e)
+    );
   };
 
   deleteOrder = (id: string) => {
     this.orders = this.orders.filter((o) => o.id !== id);
     this.notify();
+
+    // Push to server asynchronously
+    setOrdersServer({ data: this.orders }).catch((e) =>
+      console.error("Server save failed on deleteOrder:", e)
+    );
   };
 
   clearAllOrders = () => {
     this.orders = [];
     this.notify();
+
+    // Push to server asynchronously
+    setOrdersServer({ data: this.orders }).catch((e) =>
+      console.error("Server save failed on clearAllOrders:", e)
+    );
   };
 }
 

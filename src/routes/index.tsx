@@ -18,7 +18,7 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Restaurant",
   name: "UK 09",
-  telephone: "+918196996909",
+  telephone: "+917657815775",
   address: {
     "@type": "PostalAddress",
     streetAddress: "Green City Rd, inside Hotel Green In, opposite Park View Resorts, National Colony",

@@ -3,14 +3,7 @@ import { Star, MessageSquarePlus } from "lucide-react";
 import { toast } from "sonner";
 import { business, reviewThemes } from "@/lib/business";
 import { Reveal } from "./Reveal";
-
-interface Review {
-  id: string;
-  name: string;
-  rating: number;
-  comment: string;
-  date: string;
-}
+import { getReviewsServer, setReviewsServer, Review } from "@/lib/db";
 
 const initialReviews: Review[] = [
   {
@@ -43,19 +36,41 @@ const initialReviews: Review[] = [
   },
 ];
 
+
 export function ReviewsSection() {
   const [reviews, setReviews] = useState<Review[]>(initialReviews);
 
-  // Hydrate from localStorage after mount to avoid SSR mismatch
+  // Sync reviews from server on mount and poll every 8 seconds
   useEffect(() => {
+    // Local cache read for instant load
     const saved = localStorage.getItem("uk09_reviews");
     if (saved) {
       try {
         setReviews(JSON.parse(saved));
       } catch {
-        // ignore malformed data
+        // ignore
       }
     }
+
+    const syncReviews = async () => {
+      try {
+        const serverReviews = await getReviewsServer();
+        if (serverReviews && serverReviews.length > 0) {
+          const localStr = JSON.stringify(reviews);
+          const serverStr = JSON.stringify(serverReviews);
+          if (localStr !== serverStr) {
+            setReviews(serverReviews);
+            localStorage.setItem("uk09_reviews", JSON.stringify(serverReviews));
+          }
+        }
+      } catch (e) {
+        console.error("Failed to sync reviews from server:", e);
+      }
+    };
+
+    syncReviews();
+    const interval = setInterval(syncReviews, 8000);
+    return () => clearInterval(interval);
   }, []);
 
   const [rating, setRating] = useState(5);
@@ -63,7 +78,7 @@ export function ReviewsSection() {
   const [name, setName] = useState("");
   const [comment, setComment] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!name.trim()) {
@@ -87,6 +102,12 @@ export function ReviewsSection() {
     const updatedReviews = [newReview, ...reviews];
     setReviews(updatedReviews);
     localStorage.setItem("uk09_reviews", JSON.stringify(updatedReviews));
+
+    try {
+      await setReviewsServer({ data: updatedReviews });
+    } catch (e) {
+      console.error("Failed to push review to server:", e);
+    }
 
     // Reset Form
     setName("");
