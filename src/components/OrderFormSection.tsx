@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Link } from "@tanstack/react-router";
 import {
   ShoppingBag,
   CheckCircle,
@@ -67,21 +66,11 @@ const statusSteps = [
   { key: "Delivered", label: "Delivered", icon: CheckCircle },
 ];
 
-import { useSearch } from "@tanstack/react-router";
-
 export function OrderFormSection() {
-  const search = useSearch({ from: "/order" });
   const { items, total, removeItem, updateQuantity, clearCart } = useCart();
-  const { orders, addOrder, cancelOrder, deleteOrder, clearAllOrders, restoreOrdersByPhoneOrId } = useOrders();
+  const { orders, addOrder, cancelOrder, deleteOrder, clearAllOrders } = useOrders();
 
   const [activeTab, setActiveTab] = useState<"order" | "track">("order");
-
-  useEffect(() => {
-    if (search && (search.tab === "track" || search.tab === "order")) {
-      setActiveTab(search.tab);
-    }
-  }, [search]);
-
   const [form, setForm] = useState<OrderForm>({ name: "", phone: "", address: "" });
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -208,8 +197,8 @@ export function OrderFormSection() {
     <section className="py-12 md:py-20">
       <div className="shell max-w-5xl mx-auto">
         {/* Navigation Tabs */}
-        <div className="flex flex-wrap justify-center gap-2 mb-10">
-          <div className="inline-flex flex-wrap rounded-sm border border-border bg-card p-1">
+        <div className="flex justify-center mb-10">
+          <div className="inline-flex rounded-sm border border-border bg-card p-1">
             <button
               onClick={() => setActiveTab("order")}
               className={`flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-[0.16em] transition-colors rounded-sm ${
@@ -232,13 +221,6 @@ export function OrderFormSection() {
               <Clock className="size-4" />
               Track & Cancel Order {orders.length > 0 && `(${orders.length})`}
             </button>
-            <Link
-              to="/my-orders"
-              className="flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground hover:text-primary transition-colors rounded-sm"
-            >
-              <Clock className="size-4 text-primary" />
-              My Orders History
-            </Link>
           </div>
         </div>
 
@@ -576,13 +558,8 @@ export function OrderFormSection() {
                   <input
                     type="text"
                     placeholder="Search Order ID / Phone..."
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setSearchQuery(val);
-                      if (val.trim().length >= 4) {
-                        restoreOrdersByPhoneOrId(val);
-                      }
-                    }}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-9 pr-4 py-2 bg-card text-xs text-foreground placeholder:text-muted-foreground/60 rounded-sm border border-border focus:border-primary focus:outline-none"
                   />
                 </div>
@@ -590,16 +567,16 @@ export function OrderFormSection() {
                 {orders.length > 0 && (
                   <button
                     onClick={() => {
-                      if (confirm("Are you sure you want to clear your order history from this device? (This only removes history on your device view)")) {
+                      if (confirm("Are you sure you want to clear all your order history?")) {
                         clearAllOrders();
-                        toast.success("Order history cleared from your device view.");
+                        toast.success("Order history cleared.");
                       }
                     }}
                     className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-destructive border border-border hover:border-destructive/40 rounded-sm transition-colors"
                     title="Clear all orders from your view"
                   >
                     <Trash2 className="size-3.5" />
-                    Clear My History
+                    Clear All
                   </button>
                 )}
               </div>

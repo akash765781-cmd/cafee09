@@ -17,8 +17,8 @@ export function MenuSection({
   intro?: string;
   showCta?: boolean;
 }) {
-  const [active, setActive] = useState(menuCategories[0].id);
-  const current = menuCategories.find((c) => c.id === active) ?? menuCategories[0];
+  const [active, setActive] = useState(menuCategories[0]?.id || "");
+  const current = menuCategories.find((c) => c.id === active) ?? menuCategories[0] ?? { id: "empty", label: "Empty", items: [] };
   const { addItem } = useCart();
 
   return (

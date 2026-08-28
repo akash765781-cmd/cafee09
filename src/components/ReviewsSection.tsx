@@ -96,7 +96,7 @@ export function ReviewsSection() {
       name: name.trim(),
       rating,
       comment: comment.trim(),
-      date: new Date().toISOString().split("T")[0],
+      date: new Date().toISOString().split("T")[0] || "",
     };
 
     const updatedReviews = [newReview, ...reviews];

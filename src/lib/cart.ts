@@ -16,17 +16,14 @@ class CartStore {
 
   constructor() {
     if (typeof window !== "undefined") {
-      setTimeout(() => {
-        const saved = localStorage.getItem("uk09_cart");
-        if (saved) {
-          try {
-            this.items = JSON.parse(saved);
-            this.notify();
-          } catch {
-            // ignore parsing errors
-          }
+      const saved = localStorage.getItem("uk09_cart");
+      if (saved) {
+        try {
+          this.items = JSON.parse(saved);
+        } catch {
+          // ignore parsing errors
         }
-      }, 0);
+      }
     }
   }
 

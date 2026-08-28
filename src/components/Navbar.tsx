@@ -37,26 +37,23 @@ export function Navbar() {
         </Link>
 
         <ul className="hidden items-center gap-8 md:flex">
-          {navLinks.map((link) => {
-            const isActive = link.to === "/" ? pathname === "/" : pathname.startsWith(link.to);
-            return (
-              <li key={link.to}>
-                <a
-                  href={link.to}
-                  className={`relative text-sm font-medium tracking-wide transition-colors after:absolute after:-bottom-1.5 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-primary after:transition-transform hover:text-foreground hover:after:scale-x-100 ${
-                    isActive ? "text-foreground after:scale-x-100" : "text-muted-foreground"
-                  }`}
-                >
-                  {link.label}
-                </a>
-              </li>
-            );
-          })}
+          {navLinks.map((link) => (
+            <li key={link.to}>
+              <Link
+                to={link.to}
+                activeOptions={{ exact: link.to === "/" }}
+                activeProps={{ className: "text-foreground after:scale-x-100" }}
+                className="relative text-sm font-medium tracking-wide text-muted-foreground transition-colors after:absolute after:-bottom-1.5 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-primary after:transition-transform hover:text-foreground hover:after:scale-x-100"
+              >
+                {link.label}
+              </Link>
+            </li>
+          ))}
         </ul>
 
         <div className="flex items-center gap-2">
-          <a
-            href="/order"
+          <Link
+            to="/order"
             className="relative hidden items-center gap-2 bg-secondary text-foreground border border-border px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] transition-colors hover:border-primary hover:text-primary md:inline-flex"
           >
             <ShoppingBag aria-hidden="true" className="size-3.5" />
@@ -66,7 +63,7 @@ export function Navbar() {
                 {itemCount}
               </span>
             )}
-          </a>
+          </Link>
           <a
             href={business.phoneHref}
             className="hidden items-center gap-2 bg-primary px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-primary-foreground transition-opacity hover:opacity-90 lg:inline-flex"
@@ -90,21 +87,18 @@ export function Navbar() {
       {open && (
         <div id="mobile-nav" className="border-t border-border bg-background md:hidden">
           <ul className="shell flex flex-col py-2">
-            {navLinks.map((link) => {
-              const isActive = link.to === "/" ? pathname === "/" : pathname.startsWith(link.to);
-              return (
-                <li key={link.to}>
-                  <a
-                    href={link.to}
-                    className={`block border-b border-border py-4 font-display text-2xl font-extrabold tracking-tight ${
-                      isActive ? "text-primary" : "text-foreground"
-                    }`}
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              );
-            })}
+            {navLinks.map((link) => (
+              <li key={link.to}>
+                <Link
+                  to={link.to}
+                  activeOptions={{ exact: link.to === "/" }}
+                  activeProps={{ className: "text-primary" }}
+                  className="block border-b border-border py-4 font-display text-2xl font-extrabold tracking-tight"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
           </ul>
           <div className="shell grid grid-cols-2 gap-3 pb-5">
             <a

@@ -17,9 +17,12 @@ import {
   LogOut,
   RefreshCw,
   Info,
+  Smartphone,
+  Tablet,
+  Monitor,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useOrders, OrderStatus } from "@/lib/orders";
+import { useAdminOrders, OrderStatus } from "@/lib/orders";
 import { getReviewsServer, setReviewsServer, getStoreClosedServer, setStoreClosedServer, Review } from "@/lib/db";
 
 const title = "Admin Panel — UK 09 Restaurant, Bathinda";
@@ -37,7 +40,7 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminPage() {
-  const { adminOrders: orders, updateOrderStatus, deleteAdminOrder, clearAdminOrders, cancelOrder } = useOrders();
+  const { orders, updateOrderStatus, deleteOrder, clearAllOrders, cancelOrder } = useAdminOrders();
 
   // Authentication State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -166,9 +169,9 @@ function AdminPage() {
   };
 
   const handleResetOrders = () => {
-    if (confirm("Are you sure you want to delete all order records from Admin panel? (Customer history will remain safe)")) {
-      clearAdminOrders();
-      toast.success("Admin order panel cleared.");
+    if (confirm("Are you sure you want to delete all order records? This cannot be undone.")) {
+      clearAllOrders();
+      toast.success("All order records cleared.");
     }
   };
 
@@ -367,6 +370,18 @@ function AdminPage() {
                         {order.name} • {order.phone}
                       </p>
                       <p className="text-xs text-muted-foreground mt-0.5">{order.address}</p>
+                      {order.device && (
+                        <div className="flex items-center gap-1.5 mt-2 text-[10px] font-bold uppercase tracking-wider bg-primary/5 text-primary border border-primary/10 px-2.5 py-1 rounded-sm w-fit">
+                          {order.device.includes("Mobile") || order.device.includes("iPhone") ? (
+                            <Smartphone className="size-3.5 text-primary" />
+                          ) : order.device.includes("Tablet") || order.device.includes("iPad") ? (
+                            <Tablet className="size-3.5 text-primary" />
+                          ) : (
+                            <Monitor className="size-3.5 text-primary" />
+                          )}
+                          <span>Order Source: {order.device}</span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-4">
@@ -376,8 +391,8 @@ function AdminPage() {
                       </div>
                       <button
                         onClick={() => {
-                          if (confirm(`Delete record for order ${order.id} from Admin panel?`)) {
-                            deleteAdminOrder(order.id);
+                          if (confirm(`Delete record for order ${order.id}?`)) {
+                            deleteOrder(order.id);
                           }
                         }}
                         className="p-2 border border-border text-muted-foreground hover:text-destructive hover:bg-destructive/5 rounded-sm transition-colors"
@@ -486,7 +501,7 @@ function AdminPage() {
                         ))}
                       </div>
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        {rev.comment || rev.text || "(No comment written)"}
+                        {rev.comment || "(No comment written)"}
                       </p>
                     </div>
                     <button

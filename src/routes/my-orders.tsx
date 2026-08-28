@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import {
   Clock,
-  Search,
   Trash2,
   XCircle,
   ChefHat,
@@ -10,14 +9,15 @@ import {
   CheckCircle,
   AlertTriangle,
   ShoppingBag,
-  ArrowLeft,
+  Search,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useOrders } from "@/lib/orders";
+import { useOrders, OrderStatus } from "@/lib/orders";
+import { Reveal } from "@/components/Reveal";
+import { CTASection } from "@/components/CTASection";
 
 const title = "My Orders — UK 09 Restaurant, Bathinda";
-const description =
-  "View and track all your previous and active orders placed at UK 09 Restaurant, Bathinda.";
+const description = "Track and manage your order history at UK 09 Restaurant, Bathinda.";
 
 export const Route = createFileRoute("/my-orders")({
   head: () => ({
@@ -38,17 +38,19 @@ const statusSteps = [
   { key: "Preparing", label: "Preparing", icon: ChefHat },
   { key: "Out for Delivery", label: "Out for Delivery", icon: Bike },
   { key: "Delivered", label: "Delivered", icon: CheckCircle },
-] as const;
+];
 
 function MyOrdersPage() {
-  const {
-    customerOrders: orders,
-    cancelOrder,
-    deleteCustomerOrder,
-    clearCustomerOrders,
-    restoreOrdersByPhoneOrId,
-  } = useOrders();
+  return (
+    <div className="pt-20 md:pt-24">
+      <MyOrdersSection />
+      <CTASection />
+    </div>
+  );
+}
 
+function MyOrdersSection() {
+  const { orders, cancelOrder, deleteOrder, clearAllOrders } = useOrders();
   const [searchQuery, setSearchQuery] = useState("");
   const [cancellingId, setCancellingId] = useState<string | null>(null);
 
@@ -58,17 +60,6 @@ function MyOrdersPage() {
     toast.error(`Order ${orderId} has been cancelled.`);
   };
 
-  const handleClearHistory = () => {
-    if (
-      confirm(
-        "Are you sure you want to clear your order history from this device? This will only remove history from your view."
-      )
-    ) {
-      clearCustomerOrders();
-      toast.success("Your order history has been cleared.");
-    }
-  };
-
   const filteredOrders = orders.filter(
     (o) =>
       o.id.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
@@ -76,151 +67,118 @@ function MyOrdersPage() {
       o.name.toLowerCase().includes(searchQuery.toLowerCase().trim())
   );
 
-  return (
-    <div className="pt-24 md:pt-28 pb-20 min-h-screen bg-background">
-      <div className="shell max-w-5xl mx-auto space-y-8">
+  // Statistics
+  const totalOrders = orders.length;
+  const activeOrders = orders.filter(
+    (o) => o.status !== "Cancelled" && o.status !== "Delivered"
+  ).length;
+  const totalSpent = orders
+    .filter((o) => o.status !== "Cancelled")
+    .reduce((acc, o) => acc + o.total, 0);
 
-        {/* Page Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border pb-6">
+  return (
+    <section className="py-12 md:py-20">
+      <div className="shell max-w-5xl mx-auto space-y-10">
+        {/* Header and Stats */}
+        <Reveal className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 border-b border-border pb-8">
           <div>
-            <Link
-              to="/order"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors mb-3"
-            >
-              <ArrowLeft className="size-3.5" />
-              Back to Order Page
-            </Link>
-            <h1 className="font-display text-3xl md:text-4xl font-extrabold uppercase tracking-tight text-foreground">
-              My Orders &amp; History
+            <p className="eyebrow">Your History</p>
+            <h1 className="mt-2 text-4xl font-extrabold uppercase tracking-tight font-display">
+              My Orders
             </h1>
-            <p className="text-xs md:text-sm text-muted-foreground mt-1">
-              Your previous order records are safely stored here on your device.
+            <p className="mt-2 text-sm text-muted-foreground">
+              Track active deliveries and review your previous order history.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            {orders.length > 0 && (
-              <button
-                onClick={handleClearHistory}
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold text-muted-foreground hover:text-destructive border border-border hover:border-destructive/40 rounded-sm transition-colors"
-              >
-                <Trash2 className="size-3.5" />
-                Clear My History
-              </button>
-            )}
-            <Link
-              to="/order"
-              className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-5 py-2.5 text-xs uppercase tracking-wider rounded-sm transition-colors"
-            >
-              <ShoppingBag className="size-3.5" />
-              Place New Order
-            </Link>
-          </div>
-        </div>
+          {totalOrders > 0 && (
+            <div className="flex flex-wrap gap-4 text-xs font-semibold uppercase tracking-wider">
+              <div className="bg-card border border-border px-4 py-3 rounded-sm">
+                <span className="text-muted-foreground block text-[10px] mb-1">Total Orders</span>
+                <span className="text-foreground text-sm font-bold">{totalOrders}</span>
+              </div>
+              <div className="bg-card border border-border px-4 py-3 rounded-sm">
+                <span className="text-muted-foreground block text-[10px] mb-1">Active Deliveries</span>
+                <span className="text-primary text-sm font-bold">{activeOrders}</span>
+              </div>
+              <div className="bg-card border border-border px-4 py-3 rounded-sm">
+                <span className="text-muted-foreground block text-[10px] mb-1">Total Bills</span>
+                <span className="text-foreground text-sm font-bold">₹{totalSpent}</span>
+              </div>
+            </div>
+          )}
+        </Reveal>
 
-        {/* Search Bar */}
+        {/* Search and Action Bar */}
         {orders.length > 0 && (
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-card border border-border p-4 rounded-sm">
-            <div className="relative w-full sm:w-80">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+          <Reveal className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div className="relative w-full sm:max-w-xs">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Search Order ID, Phone or Name..."
+                placeholder="Search Order ID / Name / Phone..."
                 value={searchQuery}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setSearchQuery(val);
-                  if (val.trim().length >= 4) {
-                    restoreOrdersByPhoneOrId(val);
-                  }
-                }}
-                className="w-full pl-10 pr-4 py-2 bg-background text-xs text-foreground placeholder:text-muted-foreground/60 rounded-sm border border-border focus:border-primary focus:outline-none"
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-card text-xs text-foreground placeholder:text-muted-foreground/50 rounded-sm border border-border focus:border-primary focus:outline-none transition-colors"
               />
             </div>
-            <p className="text-xs text-muted-foreground font-medium">
-              Showing{" "}
-              <span className="text-foreground font-bold">
-                {filteredOrders.length}
-              </span>{" "}
-              of{" "}
-              <span className="text-foreground font-bold">{orders.length}</span>{" "}
-              orders
-            </p>
-          </div>
+
+            <button
+              onClick={() => {
+                if (confirm("Are you sure you want to clear your local order history? This will only remove records from your device and will not cancel any orders or delete them from the restaurant admin panel.")) {
+                  clearAllOrders();
+                  toast.success("Order history cleared locally.");
+                }
+              }}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-destructive border border-border hover:border-destructive/40 rounded-sm transition-colors bg-card cursor-pointer"
+            >
+              <Trash2 className="size-4" />
+              Clear All History
+            </button>
+          </Reveal>
         )}
 
         {/* Orders List */}
         {filteredOrders.length === 0 ? (
-          <div className="rounded-sm border border-border bg-card p-8 md:p-12 text-center my-8 space-y-6 max-w-lg mx-auto">
-            <div>
-              <Clock className="mx-auto size-12 text-muted-foreground/40 mb-4" />
-              <h2 className="font-display text-xl font-bold uppercase tracking-tight">
-                No Local Orders Found
-              </h2>
-              <p className="text-xs text-muted-foreground mt-2">
-                {searchQuery
-                  ? "No previous orders matched your search. Try another Order ID or Phone number."
-                  : "You haven't placed any orders on this browser yet, or your local history was cleared."}
-              </p>
-            </div>
-
-            {/* Sync Form */}
-            <div className="border-t border-border/60 pt-6 space-y-3">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-primary">
-                Find &amp; Restore Previous Orders
-              </p>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
-                Already ordered from another device or cleared your cookies? Enter your 10-digit mobile number or Order ID to sync and track all your previous orders (both Delivered &amp; Cancelled) from the server.
-              </p>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="e.g. 9876543210 or UK09-1234"
-                  value={searchQuery}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setSearchQuery(val);
-                    if (val.trim().length >= 4) {
-                      restoreOrdersByPhoneOrId(val);
-                    }
-                  }}
-                  className="flex-1 px-3 py-2 bg-background text-xs text-foreground placeholder:text-muted-foreground/50 rounded-sm border border-border focus:border-primary focus:outline-none"
-                />
-              </div>
-            </div>
-
-            <div className="border-t border-border/60 pt-6 flex justify-center">
-              <Link
-                to="/order"
-                className="inline-flex items-center justify-center min-h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 text-xs uppercase tracking-wider rounded-sm transition-colors"
+          <Reveal className="rounded-sm border border-border bg-card p-12 md:p-16 text-center max-w-lg mx-auto">
+            <ShoppingBag className="mx-auto size-16 text-muted-foreground/45 mb-4" strokeWidth={1.5} />
+            <h3 className="font-display text-xl font-bold uppercase tracking-tight">No Orders Found</h3>
+            <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+              {searchQuery
+                ? "No matching orders were found. Try searching with a different keyword or phone number."
+                : "You don't have any previous order history saved on this device. Place a new order online!"}
+            </p>
+            <div className="mt-8 flex justify-center">
+              <a
+                href="/menu"
+                className="inline-flex items-center justify-center min-h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 text-xs uppercase tracking-[0.16em] transition-colors rounded-sm"
               >
-                Place New Order Now
-              </Link>
+                Go to Menu
+              </a>
             </div>
-          </div>
+          </Reveal>
         ) : (
-          <div className="space-y-6">
+          <Reveal className="space-y-6">
             {filteredOrders.map((order) => {
               const isCancelled = order.status === "Cancelled";
-              const isDelivered = order.status === "Delivered";
 
               return (
                 <div
                   key={order.id}
-                  className="rounded-sm border border-border bg-card p-6 space-y-6"
+                  className="rounded-sm border border-border bg-card p-6 space-y-6 hover:border-primary/20 transition-colors"
                 >
                   {/* Card Header */}
                   <div className="flex flex-wrap gap-4 items-center justify-between border-b border-border/60 pb-4">
                     <div>
                       <div className="flex items-center gap-3">
-                        <span className="font-display text-xl font-bold text-foreground">
+                        <span className="font-display text-lg font-bold text-foreground">
                           {order.id}
                         </span>
                         <span
-                          className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-sm border ${
+                          className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-sm border ${
                             isCancelled
                               ? "bg-destructive/10 text-destructive border-destructive/30"
-                              : isDelivered
+                              : order.status === "Delivered"
                               ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30"
                               : "bg-primary/10 text-primary border-primary/30"
                           }`}
@@ -228,51 +186,37 @@ function MyOrdersPage() {
                           {order.status}
                         </span>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Placed at{" "}
-                        <span className="text-foreground font-medium">
-                          {order.createdAt}
-                        </span>{" "}
-                        • {order.name} ({order.phone})
+                      <p className="text-xs text-muted-foreground mt-1.5">
+                        Ordered at {order.createdAt} • Name: {order.name} ({order.phone})
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <p className="text-[10px] uppercase font-semibold text-muted-foreground">
-                          Total Bill
-                        </p>
-                        <span className="font-display text-xl font-bold text-primary">
-                          ₹{order.total}
-                        </span>
-                      </div>
-
-                      {!isCancelled && !isDelivered && (
+                    <div className="flex items-center gap-4">
+                      <span className="font-display text-xl font-extrabold text-primary">
+                        ₹{order.total}
+                      </span>
+                      {!isCancelled && order.status !== "Delivered" && (
                         <button
                           onClick={() => setCancellingId(order.id)}
-                          className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-destructive hover:bg-destructive/10 border border-destructive/30 px-3 py-1.5 rounded-sm transition-colors"
+                          className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-destructive hover:bg-destructive/10 border border-destructive/30 px-3 py-2 rounded-sm transition-colors bg-background cursor-pointer"
                         >
                           <XCircle className="size-3.5" />
                           Cancel
                         </button>
                       )}
-
-                      {(isCancelled || isDelivered) && (
+                      {(isCancelled || order.status === "Delivered") && (
                         <button
                           onClick={() => {
-                            if (
-                              confirm(
-                                `Remove order ${order.id} from your view?`
-                              )
-                            ) {
-                              deleteCustomerOrder(order.id);
-                              toast.success("Order removed from your view.");
+                            if (confirm(`Remove order ${order.id} from your view?`)) {
+                              deleteOrder(order.id);
+                              toast.success("Order record removed locally.");
                             }
                           }}
-                          className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive border border-border hover:border-destructive/30 px-2.5 py-1.5 rounded-sm transition-colors"
+                          className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:text-destructive border border-border hover:border-destructive/30 px-3 py-2 rounded-sm transition-colors bg-background cursor-pointer"
+                          title="Remove this record from your view"
                         >
                           <Trash2 className="size-3.5" />
-                          Clear
+                          Clear Record
                         </button>
                       )}
                     </div>
@@ -280,37 +224,35 @@ function MyOrdersPage() {
 
                   {/* Cancel Confirmation */}
                   {cancellingId === order.id && (
-                    <div className="rounded-sm border border-destructive/40 bg-destructive/5 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <Reveal className="rounded-sm border border-destructive/40 bg-destructive/5 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                       <div className="flex items-center gap-3 text-xs text-destructive font-medium">
                         <AlertTriangle className="size-5 shrink-0" />
-                        <span>
-                          Are you sure you want to cancel order {order.id}?
-                        </span>
+                        <span>Are you sure you want to cancel order {order.id}?</span>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <button
                           onClick={() => handleCancelOrderClick(order.id)}
-                          className="px-4 py-1.5 bg-destructive text-destructive-foreground font-semibold text-xs uppercase tracking-wider rounded-sm hover:bg-destructive/90 transition-colors"
+                          className="px-4 py-2 bg-destructive text-destructive-foreground font-semibold text-xs uppercase tracking-wider rounded-sm hover:bg-destructive/90 transition-colors cursor-pointer"
                         >
-                          Yes, Cancel Order
+                          Confirm Cancel
                         </button>
                         <button
                           onClick={() => setCancellingId(null)}
-                          className="px-4 py-1.5 border border-border text-xs font-semibold uppercase tracking-wider rounded-sm hover:bg-secondary transition-colors"
+                          className="px-4 py-2 border border-border text-xs font-semibold uppercase tracking-wider rounded-sm hover:bg-secondary transition-colors cursor-pointer"
                         >
                           Dismiss
                         </button>
                       </div>
-                    </div>
+                    </Reveal>
                   )}
 
-                  {/* Status Progress */}
+                  {/* Status Progress Tracker */}
                   {!isCancelled ? (
                     <div className="py-2">
                       <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-4">
-                        Live Order Progress Status
+                        Live Tracking
                       </p>
-                      <div className="grid grid-cols-4 gap-2">
+                      <div className="grid grid-cols-4 gap-2 relative">
                         {statusSteps.map((step, idx) => {
                           const StepIcon = step.icon;
                           const isCurrent = order.status === step.key;
@@ -320,10 +262,7 @@ function MyOrdersPage() {
                             (order.status === "Delivered" && idx <= 3);
 
                           return (
-                            <div
-                              key={step.key}
-                              className="flex flex-col items-center text-center"
-                            >
+                            <div key={step.key} className="flex flex-col items-center text-center">
                               <div
                                 className={`size-10 rounded-full flex items-center justify-center transition-colors mb-2 border ${
                                   isCurrent
@@ -333,12 +272,12 @@ function MyOrdersPage() {
                                     : "bg-secondary text-muted-foreground border-border"
                                 }`}
                               >
-                                <StepIcon className="size-4" />
+                                <StepIcon className="size-4.5" strokeWidth={isCurrent ? 2 : 1.5} />
                               </div>
                               <span
-                                className={`text-[10px] md:text-[11px] font-semibold tracking-tight ${
+                                className={`text-[10px] font-bold uppercase tracking-tight ${
                                   isCurrent || isCompleted
-                                    ? "text-foreground"
+                                    ? "text-foreground font-semibold"
                                     : "text-muted-foreground"
                                 }`}
                               >
@@ -350,50 +289,48 @@ function MyOrdersPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="p-4 rounded-sm bg-destructive/10 text-destructive text-xs flex items-center gap-2">
+                    <div className="p-4 rounded-sm bg-destructive/10 text-destructive text-xs flex items-center gap-2 border border-destructive/20">
                       <XCircle className="size-4 shrink-0" />
-                      <span>
-                        This order was cancelled. No further charges or delivery
-                        will occur.
-                      </span>
+                      <span>This order was cancelled. No delivery will occur.</span>
                     </div>
                   )}
 
-                  {/* Order Items */}
-                  <div className="bg-secondary/30 p-4 rounded-sm space-y-2 text-xs">
-                    <p className="font-semibold text-foreground uppercase tracking-wider text-[10px] mb-2">
-                      Items Ordered ({order.items.length})
-                    </p>
-                    {order.items.map((item, i) => (
-                      <div
-                        key={i}
-                        className="flex justify-between text-muted-foreground"
-                      >
-                        <span>
-                          {item.quantity}x{" "}
-                          <span className="text-foreground">{item.name}</span>{" "}
-                          {item.portion && `(${item.portion})`}
-                        </span>
-                        <span className="font-medium text-foreground">
-                          ₹{item.price * item.quantity}
-                        </span>
+                  {/* Items Summary */}
+                  <div className="bg-secondary/20 border border-border/40 p-4 rounded-sm space-y-3.5 text-xs">
+                    <div>
+                      <p className="font-bold text-foreground uppercase tracking-wider text-[10px] mb-2.5">
+                        Selected Items ({order.items.length})
+                      </p>
+                      <div className="space-y-2">
+                        {order.items.map((item, i) => (
+                          <div key={i} className="flex justify-between text-muted-foreground font-display">
+                            <span>
+                              {item.quantity}x <span className="text-foreground font-medium">{item.name}</span>{" "}
+                              {item.portion && `(${item.portion})`}
+                            </span>
+                            <span className="font-semibold text-foreground">
+                              ₹{item.price * item.quantity}
+                            </span>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                    <div className="pt-2 border-t border-border/50 flex justify-between font-medium text-foreground">
-                      <span className="text-muted-foreground text-[11px]">
-                        Delivery Address
-                      </span>
-                      <span className="text-foreground text-[11px] max-w-xs truncate text-right">
-                        {order.address}
-                      </span>
+                    </div>
+
+                    <div className="pt-3 border-t border-border/50 flex flex-col gap-2 text-muted-foreground">
+                      <div>
+                        <span className="font-bold text-foreground uppercase tracking-wider text-[9px] block mb-1">
+                          Delivery Address
+                        </span>
+                        <span className="text-xs text-foreground font-medium">{order.address}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               );
             })}
-          </div>
+          </Reveal>
         )}
       </div>
-    </div>
+    </section>
   );
 }
