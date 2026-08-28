@@ -260,33 +260,54 @@ function MyOrdersSection() {
                             (order.status === "Preparing" && idx === 0) ||
                             (order.status === "Out for Delivery" && idx <= 1) ||
                             (order.status === "Delivered" && idx <= 3);
+                          const isDelivered = order.status === "Delivered";
+
+                          let circleClass = "";
+                          if (isCurrent) {
+                            if (step.key === "Delivered") {
+                              circleClass = "bg-emerald-500 text-white border-emerald-500 ring-4 ring-emerald-500/20";
+                            } else {
+                              circleClass = "bg-primary text-primary-foreground border-primary ring-4 ring-primary/20 animate-pulse";
+                            }
+                          } else if (isCompleted) {
+                            if (step.key === "Delivered" || isDelivered) {
+                              circleClass = "bg-emerald-500/20 text-emerald-500 border-emerald-500/40";
+                            } else {
+                              circleClass = "bg-primary/20 text-primary border-primary/40";
+                            }
+                          } else {
+                            circleClass = "bg-secondary text-muted-foreground border-border";
+                          }
+
+                          let textClass = "";
+                          if (isCurrent || isCompleted) {
+                            if (step.key === "Delivered" || isDelivered) {
+                              textClass = "text-emerald-500 font-bold";
+                            } else {
+                              textClass = "text-foreground font-bold";
+                            }
+                          } else {
+                            textClass = "text-muted-foreground";
+                          }
 
                           return (
                             <div key={step.key} className="flex flex-col items-center text-center">
-                              <div
-                                className={`size-10 rounded-full flex items-center justify-center transition-colors mb-2 border ${
-                                  isCurrent
-                                    ? "bg-primary text-primary-foreground border-primary ring-4 ring-primary/20 animate-pulse"
-                                    : isCompleted
-                                    ? "bg-primary/20 text-primary border-primary/40"
-                                    : "bg-secondary text-muted-foreground border-border"
-                                }`}
-                              >
+                              <div className={`size-10 rounded-full flex items-center justify-center transition-colors mb-2 border ${circleClass}`}>
                                 <StepIcon className="size-4.5" strokeWidth={isCurrent ? 2 : 1.5} />
                               </div>
-                              <span
-                                className={`text-[10px] font-bold uppercase tracking-tight ${
-                                  isCurrent || isCompleted
-                                    ? "text-foreground font-semibold"
-                                    : "text-muted-foreground"
-                                }`}
-                              >
+                              <span className={`text-[10px] font-bold uppercase tracking-tight ${textClass}`}>
                                 {step.label}
                               </span>
                             </div>
                           );
                         })}
                       </div>
+                      {order.status === "Delivered" && (
+                        <div className="mt-4 p-4 rounded-sm bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs flex items-center gap-2.5 font-semibold uppercase tracking-wider">
+                          <CheckCircle className="size-4 shrink-0 text-emerald-500" />
+                          <span>Your order has been delivered successfully! Thank you for choosing UK 09.</span>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="p-4 rounded-sm bg-destructive/10 text-destructive text-xs flex items-center gap-2 border border-destructive/20">

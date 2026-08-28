@@ -65,7 +65,31 @@ class CustomerOrderStore {
       const syncState = await getOrdersServer();
       if (!syncState) return;
 
-      const { orders: serverOrders } = syncState;
+      const { orders: serverOrders, deletedOrderIds, lastClearedAt } = syncState;
+
+      // If any of our local orders are not present on the server (e.g. server database wiped),
+      // we immediately re-upload them to the server so that the admin can see them and status updates work!
+      const missingOnServer = this.orders.filter((o) => {
+        if (!o) return false;
+        // If the admin explicitly deleted this order or cleared it, don't re-upload it
+        if (deletedOrderIds && deletedOrderIds.includes(o.id)) return false;
+        if (lastClearedAt && o.createdAtTimestamp && o.createdAtTimestamp <= lastClearedAt) {
+          return false;
+        }
+        // Check if it's missing on the server
+        return !(serverOrders || []).some((so) => so && so.id === o.id);
+      });
+
+      if (missingOnServer.length > 0) {
+        for (const order of missingOnServer) {
+          await addOrderServer({ data: { order } }).catch((e) =>
+            console.error("Failed to restore order on server:", e)
+          );
+        }
+        // Force a quick sync again to retrieve updated server state
+        setTimeout(() => this.syncFromServer(), 500);
+        return;
+      }
 
       let hasStateChanges = false;
       const updatedOrders = this.orders.map((o) => {
