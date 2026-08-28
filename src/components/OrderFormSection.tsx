@@ -619,6 +619,8 @@ export function OrderFormSection() {
                               className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-sm border ${
                                 isCancelled
                                   ? "bg-destructive/10 text-destructive border-destructive/30"
+                                  : order.status === "Delivered"
+                                  ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30"
                                   : "bg-primary/10 text-primary border-primary/30"
                               }`}
                             >
