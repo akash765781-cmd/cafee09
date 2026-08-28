@@ -260,7 +260,7 @@ export function OrderFormSection() {
               }`}
             >
               <ShoppingBag className="size-4" />
-              Place Order {items.length > 0 && `(${items.length})`}
+              {isStoreClosed ? "Closed" : `Place Order ${items.length > 0 ? `(${items.length})` : ""}`}
             </button>
             <button
               onClick={() => setActiveTab("track")}
@@ -576,7 +576,7 @@ export function OrderFormSection() {
                             ) : (
                               <>
                                 <ShoppingBag className="size-4" />
-                                {isStoreClosed ? "Closed for Orders" : `Place Order (₹${total})`}
+                                {isStoreClosed ? "Closed" : `Place Order (₹${total})`}
                               </>
                             )}
                           </button>

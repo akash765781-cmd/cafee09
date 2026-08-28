@@ -76,11 +76,15 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <Link
             to="/order"
-            className="relative hidden items-center gap-2 bg-secondary text-foreground border border-border px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] transition-colors hover:border-primary hover:text-primary md:inline-flex"
+            className={`relative hidden items-center gap-2 border px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] transition-colors md:inline-flex ${
+              isStoreClosed
+                ? "bg-destructive/10 text-destructive border-destructive/30 hover:bg-destructive/20"
+                : "bg-secondary text-foreground border-border hover:border-primary hover:text-primary"
+            }`}
           >
             <ShoppingBag aria-hidden="true" className="size-3.5" />
-            Order
-            {itemCount > 0 && (
+            {isStoreClosed ? "Closed" : "Order"}
+            {itemCount > 0 && !isStoreClosed && (
               <span className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
                 {itemCount}
               </span>
