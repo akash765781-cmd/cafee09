@@ -4,6 +4,7 @@ import {
   getOrdersServer,
   clearAllOrdersServer,
   addOrderServer,
+  forceAddOrderServer,
   updateOrderStatusServer,
   deleteOrderServer
 } from "./db";
@@ -82,7 +83,7 @@ class CustomerOrderStore {
 
       if (missingOnServer.length > 0) {
         for (const order of missingOnServer) {
-          await addOrderServer({ data: { order } }).catch((e) =>
+          await forceAddOrderServer({ data: { order } }).catch((e) =>
             console.error("Failed to restore order on server:", e)
           );
         }

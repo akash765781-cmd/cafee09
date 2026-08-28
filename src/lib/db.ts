@@ -98,6 +98,14 @@ async function kvSet(key: string, value: any) {
   }
 }
 
+// Helper to read store closed status directly from KV (for use inside server fn handlers)
+async function isStoreClosedFromKV(): Promise<boolean> {
+  const raw = await kvGet<any>("uk09_store_closed", false);
+  if (typeof raw === "boolean") return raw;
+  if (typeof raw === "string") return raw === "true";
+  return false;
+}
+
 // Server Functions
 export const getOrdersServer = createServerFn({ method: "GET" })
   .handler(async (): Promise<SyncState> => {
@@ -123,10 +131,21 @@ export const setOrdersServer = createServerFn({ method: "POST" })
 export const addOrderServer = createServerFn({ method: "POST" })
   .validator((data: { order: Order }) => data)
   .handler(async ({ data }) => {
-    const storeClosed = await getStoreClosedServer();
+    // Check store closed directly from KV (NOT via another server function)
+    const storeClosed = await isStoreClosedFromKV();
     if (storeClosed) {
       throw new Error("Store is currently closed for online orders.");
     }
+    const orders = await kvGet<Order[]>("uk09_orders", []);
+    const updated = [data.order, ...orders];
+    await kvSet("uk09_orders", updated);
+    return { success: true };
+  });
+
+// Force add order without store-closed check (used for sync/re-upload only)
+export const forceAddOrderServer = createServerFn({ method: "POST" })
+  .validator((data: { order: Order }) => data)
+  .handler(async ({ data }) => {
     const orders = await kvGet<Order[]>("uk09_orders", []);
     const updated = [data.order, ...orders];
     await kvSet("uk09_orders", updated);
@@ -180,30 +199,13 @@ export const setReviewsServer = createServerFn({ method: "POST" })
 
 export const getStoreClosedServer = createServerFn({ method: "GET" })
   .handler(async (): Promise<boolean> => {
-    const raw = await kvGet<any>("uk09_store_closed", false);
-    if (typeof raw === "boolean") return raw;
-    if (typeof raw === "string") return raw === "true";
-    if (typeof raw === "object" && raw !== null) {
-      if (typeof raw.data === "boolean") return raw.data;
-      if (typeof raw.closed === "boolean") return raw.closed;
-      if (typeof raw.data === "string") return raw.data === "true";
-    }
-    return false;
+    return await isStoreClosedFromKV();
   });
 
 export const setStoreClosedServer = createServerFn({ method: "POST" })
-  .validator((input: any) => input)
-  .handler(async ({ data }) => {
-    let isClosed = false;
-    if (typeof data === "boolean") {
-      isClosed = data;
-    } else if (typeof data === "string") {
-      isClosed = data === "true";
-    } else if (typeof data === "object" && data !== null) {
-      if (typeof data.data === "boolean") isClosed = data.data;
-      else if (typeof data.closed === "boolean") isClosed = data.closed;
-      else if (typeof data.data === "string") isClosed = data.data === "true";
-    }
+  .validator((data: boolean) => data)
+  .handler(async ({ data: closed }) => {
+    const isClosed = typeof closed === "boolean" ? closed : String(closed) === "true";
     await kvSet("uk09_store_closed", isClosed);
     return { success: true, storeClosed: isClosed };
   });
