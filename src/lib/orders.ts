@@ -208,10 +208,30 @@ export function useOrders() {
 // ==========================================
 class AdminOrderStore {
   orders: Order[] = [];
+  deletedOrderIds: string[] = [];
+  lastClearedAt: number = 0;
   listeners: (() => void)[] = [];
 
   constructor() {
     if (typeof window !== "undefined") {
+      // Load local copies of order logs and admin actions from localStorage
+      const savedOrders = localStorage.getItem("uk09_admin_orders");
+      if (savedOrders) {
+        try {
+          this.orders = JSON.parse(savedOrders);
+        } catch {}
+      }
+      const savedDeleted = localStorage.getItem("uk09_admin_deleted_order_ids");
+      if (savedDeleted) {
+        try {
+          this.deletedOrderIds = JSON.parse(savedDeleted);
+        } catch {}
+      }
+      const savedCleared = localStorage.getItem("uk09_admin_last_cleared_at");
+      if (savedCleared) {
+        this.lastClearedAt = Number(savedCleared) || 0;
+      }
+
       this.syncFromServer();
       setInterval(() => {
         this.syncFromServer();
@@ -224,16 +244,46 @@ class AdminOrderStore {
       const syncState = await getOrdersServer();
       if (!syncState) return;
 
-      const { orders: serverOrders, deletedOrderIds, lastClearedAt } = syncState;
+      const { orders: serverOrders, deletedOrderIds: serverDeleted, lastClearedAt: serverCleared } = syncState;
 
-      // Filter server orders based on admin deleted list and last cleared timestamp
-      const filteredOrders = (serverOrders || []).filter((o) => {
+      // Merge and update deletedOrderIds list locally
+      const updatedDeleted = Array.from(new Set([...this.deletedOrderIds, ...(serverDeleted || [])]));
+      this.deletedOrderIds = updatedDeleted;
+      if (typeof window !== "undefined") {
+        localStorage.setItem("uk09_admin_deleted_order_ids", JSON.stringify(updatedDeleted));
+      }
+
+      // Merge and update lastClearedAt timestamp locally (always keep the latest clearing event)
+      const updatedCleared = Math.max(this.lastClearedAt, serverCleared || 0);
+      this.lastClearedAt = updatedCleared;
+      if (typeof window !== "undefined") {
+        localStorage.setItem("uk09_admin_last_cleared_at", String(updatedCleared));
+      }
+
+      // Merge incoming server orders into local orders (protects against serverless memory resets)
+      const mergedMap = new Map<string, Order>();
+      this.orders.forEach((o) => {
+        if (o && o.id) mergedMap.set(o.id, o);
+      });
+      (serverOrders || []).forEach((o) => {
+        if (o && o.id) mergedMap.set(o.id, o);
+      });
+
+      // Filter based on merged lists/timestamps
+      const filteredOrders = Array.from(mergedMap.values()).filter((o) => {
         if (!o) return false;
-        if (deletedOrderIds && deletedOrderIds.includes(o.id)) return false;
-        if (lastClearedAt && o.createdAtTimestamp && o.createdAtTimestamp <= lastClearedAt) {
+        if (this.deletedOrderIds.includes(o.id)) return false;
+        if (this.lastClearedAt && o.createdAtTimestamp && o.createdAtTimestamp <= this.lastClearedAt) {
           return false;
         }
         return true;
+      });
+
+      // Sort newest first
+      filteredOrders.sort((a, b) => {
+        const tA = a.createdAtTimestamp || 0;
+        const tB = b.createdAtTimestamp || 0;
+        return tB - tA;
       });
 
       const prevStr = JSON.stringify(this.orders);
@@ -241,6 +291,9 @@ class AdminOrderStore {
 
       if (prevStr !== newStr) {
         this.orders = filteredOrders;
+        if (typeof window !== "undefined") {
+          localStorage.setItem("uk09_admin_orders", newStr);
+        }
         this.notify();
       }
     } catch (e) {
@@ -263,9 +316,10 @@ class AdminOrderStore {
   getServerSnapshot = () => emptyOrders;
 
   updateOrderStatus = (id: string, status: OrderStatus) => {
-    this.orders = this.orders.map((o) =>
-      o.id === id ? { ...o, status } : o
-    );
+    this.orders = this.orders.map((o) => (o.id === id ? { ...o, status } : o));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("uk09_admin_orders", JSON.stringify(this.orders));
+    }
     this.notify();
 
     updateOrderStatusServer({ data: { id, status } }).catch((e) =>
@@ -274,9 +328,10 @@ class AdminOrderStore {
   };
 
   cancelOrder = (id: string) => {
-    this.orders = this.orders.map((o) =>
-      o.id === id ? { ...o, status: "Cancelled" as OrderStatus } : o
-    );
+    this.orders = this.orders.map((o) => (o.id === id ? { ...o, status: "Cancelled" as OrderStatus } : o));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("uk09_admin_orders", JSON.stringify(this.orders));
+    }
     this.notify();
 
     updateOrderStatusServer({ data: { id, status: "Cancelled" } }).catch((e) =>
@@ -285,8 +340,15 @@ class AdminOrderStore {
   };
 
   deleteOrder = (id: string) => {
-    // Delete permanently from the server (meaning for the admin's list)
+    // Delete locally and save to local deleted list
     this.orders = this.orders.filter((o) => o.id !== id);
+    if (!this.deletedOrderIds.includes(id)) {
+      this.deletedOrderIds.push(id);
+    }
+    if (typeof window !== "undefined") {
+      localStorage.setItem("uk09_admin_orders", JSON.stringify(this.orders));
+      localStorage.setItem("uk09_admin_deleted_order_ids", JSON.stringify(this.deletedOrderIds));
+    }
     this.notify();
 
     deleteOrderServer({ data: { id } }).catch((e) =>
@@ -295,8 +357,13 @@ class AdminOrderStore {
   };
 
   clearAllOrders = () => {
-    // Clear permanently from the server (meaning for the admin's view)
+    const now = Date.now();
     this.orders = [];
+    this.lastClearedAt = now;
+    if (typeof window !== "undefined") {
+      localStorage.setItem("uk09_admin_orders", JSON.stringify([]));
+      localStorage.setItem("uk09_admin_last_cleared_at", String(now));
+    }
     this.notify();
 
     clearAllOrdersServer().catch((e) =>
