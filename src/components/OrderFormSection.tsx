@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "@tanstack/react-router";
 import {
   ShoppingBag,
   CheckCircle,
@@ -197,8 +198,8 @@ export function OrderFormSection() {
     <section className="py-12 md:py-20">
       <div className="shell max-w-5xl mx-auto">
         {/* Navigation Tabs */}
-        <div className="flex justify-center mb-10">
-          <div className="inline-flex rounded-sm border border-border bg-card p-1">
+        <div className="flex flex-wrap justify-center gap-2 mb-10">
+          <div className="inline-flex flex-wrap rounded-sm border border-border bg-card p-1">
             <button
               onClick={() => setActiveTab("order")}
               className={`flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-[0.16em] transition-colors rounded-sm ${
@@ -221,6 +222,13 @@ export function OrderFormSection() {
               <Clock className="size-4" />
               Track & Cancel Order {orders.length > 0 && `(${orders.length})`}
             </button>
+            <Link
+              to="/my-orders"
+              className="flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground hover:text-primary transition-colors rounded-sm"
+            >
+              <Clock className="size-4 text-primary" />
+              My Orders History
+            </Link>
           </div>
         </div>
 
@@ -567,16 +575,16 @@ export function OrderFormSection() {
                 {orders.length > 0 && (
                   <button
                     onClick={() => {
-                      if (confirm("Are you sure you want to clear all your order history?")) {
+                      if (confirm("Are you sure you want to clear your order history from this device? (This only removes history on your device view)")) {
                         clearAllOrders();
-                        toast.success("Order history cleared.");
+                        toast.success("Order history cleared from your device view.");
                       }
                     }}
                     className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-destructive border border-border hover:border-destructive/40 rounded-sm transition-colors"
                     title="Clear all orders from your view"
                   >
                     <Trash2 className="size-3.5" />
-                    Clear All
+                    Clear My History
                   </button>
                 )}
               </div>

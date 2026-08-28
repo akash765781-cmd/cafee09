@@ -115,6 +115,19 @@ var createLucideIcon = (iconName, iconNode) => {
 * This source code is licensed under the ISC license.
 * See the LICENSE file in the root directory of this source tree.
 */
+var ArrowLeft = createLucideIcon("arrow-left", [["path", {
+	d: "m12 19-7-7 7-7",
+	key: "1l729n"
+}], ["path", {
+	d: "M19 12H5",
+	key: "x3x0zl"
+}]]);
+/**
+* @license lucide-react v0.575.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
 var ArrowRight = createLucideIcon("arrow-right", [["path", {
 	d: "M5 12h14",
 	key: "1ays0h"
@@ -555,4 +568,4 @@ var X = createLucideIcon("x", [["path", {
 	key: "d8bk6v"
 }]]);
 //#endregion
-export { Clock as C, Bike as D, ChefHat as E, ArrowRight as O, LoaderCircle as S, CircleCheckBig as T, MessageCircle as _, Trash2 as a, LogOut as b, Shield as c, RefreshCw as d, Plus as f, MessageSquarePlus as g, MessageSquare as h, TrendingUp as i, Settings as l, Minus as m, User as n, Star as o, Phone as p, TriangleAlert as r, ShoppingBag as s, X as t, Search as u, Menu as v, CircleX as w, Lock as x, MapPin as y };
+export { Clock as C, Bike as D, ChefHat as E, ArrowRight as O, LoaderCircle as S, CircleCheckBig as T, MessageCircle as _, Trash2 as a, LogOut as b, Shield as c, RefreshCw as d, Plus as f, MessageSquarePlus as g, MessageSquare as h, TrendingUp as i, ArrowLeft as k, Settings as l, Minus as m, User as n, Star as o, Phone as p, TriangleAlert as r, ShoppingBag as s, X as t, Search as u, Menu as v, CircleX as w, Lock as x, MapPin as y };

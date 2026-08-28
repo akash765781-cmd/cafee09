@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { CartItem } from "./cart";
-import { getOrdersServer, setOrdersServer, clearAllOrdersServer } from "./db";
+import { getOrdersServer, setOrdersServer, clearAdminOrdersServer } from "./db";
 
 export type OrderStatus = "Received" | "Preparing" | "Out for Delivery" | "Delivered" | "Cancelled";
 
@@ -19,46 +19,66 @@ export type Order = {
 const emptyOrders: Order[] = [];
 
 class OrderStore {
-  orders: Order[] = [];
-  deletedOrderIds: string[] = [];
-  lastClearedAt: number = 0;
+  // All server orders
+  serverOrders: Order[] = [];
+  adminDeletedOrderIds: string[] = [];
+  adminLastClearedAt: number = 0;
+
+  // Customer local orders
+  customerOrders: Order[] = [];
+  customerDeletedOrderIds: string[] = [];
+  customerLastClearedAt: number = 0;
+
   listeners: (() => void)[] = [];
 
   constructor() {
     if (typeof window !== "undefined") {
-      // 1. Initial local load
-      const savedOrders = localStorage.getItem("uk09_orders");
-      if (savedOrders) {
-        try { this.orders = JSON.parse(savedOrders); } catch {}
+      // 1. Load customer local history
+      const savedCustomerOrders = localStorage.getItem("uk09_my_orders") || localStorage.getItem("uk09_orders");
+      if (savedCustomerOrders) {
+        try { this.customerOrders = JSON.parse(savedCustomerOrders); } catch {}
       }
 
-      const savedDeleted = localStorage.getItem("uk09_deleted_order_ids");
-      if (savedDeleted) {
-        try { this.deletedOrderIds = JSON.parse(savedDeleted); } catch {}
+      const savedCustDeleted = localStorage.getItem("uk09_customer_deleted_order_ids");
+      if (savedCustDeleted) {
+        try { this.customerDeletedOrderIds = JSON.parse(savedCustDeleted); } catch {}
       }
 
-      const savedCleared = localStorage.getItem("uk09_last_cleared_at");
-      if (savedCleared) {
-        this.lastClearedAt = Number(savedCleared) || 0;
+      const savedCustCleared = localStorage.getItem("uk09_customer_last_cleared");
+      if (savedCustCleared) {
+        this.customerLastClearedAt = Number(savedCustCleared) || 0;
       }
 
-      // Filter out deleted/cleared on startup
-      this.filterInvalidOrders();
+      // Load admin local caches
+      const savedAdminDeleted = localStorage.getItem("uk09_admin_deleted_order_ids");
+      if (savedAdminDeleted) {
+        try { this.adminDeletedOrderIds = JSON.parse(savedAdminDeleted); } catch {}
+      }
 
-      // 2. Fetch fresh data from server
+      const savedAdminCleared = localStorage.getItem("uk09_admin_last_cleared");
+      if (savedAdminCleared) {
+        this.adminLastClearedAt = Number(savedAdminCleared) || 0;
+      }
+
+      // Initial filter
+      this.filterCustomerOrders();
+
+      // Fetch fresh data from server immediately & repeatedly
       this.syncFromServer();
-
-      // 3. Sync from server every 5 seconds
       setInterval(() => {
         this.syncFromServer();
-      }, 5000);
+      }, 4000);
     }
   }
 
-  filterInvalidOrders() {
-    this.orders = this.orders.filter((o) => {
-      if (this.deletedOrderIds.includes(o.id)) return false;
-      if (this.lastClearedAt && o.createdAtTimestamp && o.createdAtTimestamp <= this.lastClearedAt) {
+  filterCustomerOrders() {
+    this.customerOrders = this.customerOrders.filter((o) => {
+      if (this.customerDeletedOrderIds.includes(o.id)) return false;
+      if (
+        this.customerLastClearedAt &&
+        o.createdAtTimestamp &&
+        o.createdAtTimestamp <= this.customerLastClearedAt
+      ) {
         return false;
       }
       return true;
@@ -70,64 +90,54 @@ class OrderStore {
       const syncState = await getOrdersServer();
       if (!syncState) return;
 
-      const { orders: serverOrders, deletedOrderIds: serverDeletedIds, lastClearedAt: serverLastCleared } = syncState;
+      const {
+        orders: remoteOrders = [],
+        adminDeletedOrderIds: remoteAdminDeleted = [],
+        adminLastClearedAt: remoteAdminCleared = 0,
+      } = syncState;
 
-      let hasStateChanges = false;
+      let hasChanges = false;
 
-      // Update lastClearedAt
-      if (serverLastCleared && serverLastCleared > this.lastClearedAt) {
-        this.lastClearedAt = serverLastCleared;
-        hasStateChanges = true;
+      // Update admin state
+      if (remoteAdminCleared > this.adminLastClearedAt) {
+        this.adminLastClearedAt = remoteAdminCleared;
+        hasChanges = true;
       }
 
-      // Merge deleted IDs
-      if (serverDeletedIds && serverDeletedIds.length > 0) {
-        const prevSet = new Set(this.deletedOrderIds);
-        for (const id of serverDeletedIds) {
-          if (!prevSet.has(id)) {
-            this.deletedOrderIds.push(id);
-            hasStateChanges = true;
+      if (remoteAdminDeleted.length > 0) {
+        const set = new Set(this.adminDeletedOrderIds);
+        for (const id of remoteAdminDeleted) {
+          if (!set.has(id)) {
+            this.adminDeletedOrderIds.push(id);
+            hasChanges = true;
           }
         }
       }
 
-      // Filter local orders
-      const activeLocal = this.orders.filter((o) => {
-        if (this.deletedOrderIds.includes(o.id)) return false;
-        if (this.lastClearedAt && o.createdAtTimestamp && o.createdAtTimestamp <= this.lastClearedAt) return false;
-        return true;
-      });
+      this.serverOrders = remoteOrders;
 
-      // Filter server orders
-      const activeServer = (serverOrders || []).filter((o) => {
-        if (this.deletedOrderIds.includes(o.id)) return false;
-        if (this.lastClearedAt && o.createdAtTimestamp && o.createdAtTimestamp <= this.lastClearedAt) return false;
-        return true;
-      });
-
-      // Merge active orders
-      const orderMap = new Map<string, Order>();
-      for (const lo of activeLocal) {
-        orderMap.set(lo.id, lo);
+      // Update customer local orders status from remote server orders
+      const remoteOrderMap = new Map<string, Order>();
+      for (const rOrder of remoteOrders) {
+        remoteOrderMap.set(rOrder.id, rOrder);
       }
 
-      for (const so of activeServer) {
-        const existing = orderMap.get(so.id);
-        if (!existing) {
-          orderMap.set(so.id, so);
-          hasStateChanges = true;
-        } else if (existing.status !== so.status) {
-          orderMap.set(so.id, { ...existing, status: so.status });
-          hasStateChanges = true;
+      let customerOrdersUpdated = false;
+      const updatedCustomerOrders = this.customerOrders.map((custOrder) => {
+        const matchingRemote = remoteOrderMap.get(custOrder.id);
+        if (matchingRemote && matchingRemote.status !== custOrder.status) {
+          customerOrdersUpdated = true;
+          return { ...custOrder, status: matchingRemote.status };
         }
+        return custOrder;
+      });
+
+      if (customerOrdersUpdated) {
+        this.customerOrders = updatedCustomerOrders;
+        hasChanges = true;
       }
 
-      const merged = Array.from(orderMap.values());
-      const prevStr = JSON.stringify(this.orders);
-      const mergedStr = JSON.stringify(merged);
-
-      if (prevStr !== mergedStr || hasStateChanges) {
-        this.orders = merged;
+      if (hasChanges) {
         this.notify();
       }
     } catch (e) {
@@ -137,9 +147,12 @@ class OrderStore {
 
   save() {
     if (typeof window !== "undefined") {
-      localStorage.setItem("uk09_orders", JSON.stringify(this.orders));
-      localStorage.setItem("uk09_deleted_order_ids", JSON.stringify(this.deletedOrderIds));
-      localStorage.setItem("uk09_last_cleared_at", String(this.lastClearedAt));
+      localStorage.setItem("uk09_my_orders", JSON.stringify(this.customerOrders));
+      localStorage.setItem("uk09_customer_deleted_order_ids", JSON.stringify(this.customerDeletedOrderIds));
+      localStorage.setItem("uk09_customer_last_cleared", String(this.customerLastClearedAt));
+
+      localStorage.setItem("uk09_admin_deleted_order_ids", JSON.stringify(this.adminDeletedOrderIds));
+      localStorage.setItem("uk09_admin_last_cleared", String(this.adminLastClearedAt));
     }
   }
 
@@ -155,7 +168,20 @@ class OrderStore {
     };
   };
 
-  getSnapshot = () => this.orders;
+  getCustomerSnapshot = () => this.customerOrders;
+  getAdminSnapshot = () => {
+    return this.serverOrders.filter((o) => {
+      if (this.adminDeletedOrderIds.includes(o.id)) return false;
+      if (
+        this.adminLastClearedAt &&
+        o.createdAtTimestamp &&
+        o.createdAtTimestamp <= this.adminLastClearedAt
+      ) {
+        return false;
+      }
+      return true;
+    });
+  };
   getServerSnapshot = () => emptyOrders;
 
   addOrder = (orderData: Omit<Order, "id" | "status" | "createdAt" | "createdAtTimestamp">): Order => {
@@ -168,14 +194,18 @@ class OrderStore {
       createdAtTimestamp: now,
     };
 
-    this.orders = [newOrder, ...this.orders];
+    // Add to customer local orders
+    this.customerOrders = [newOrder, ...this.customerOrders];
+    // Add to server orders
+    this.serverOrders = [newOrder, ...this.serverOrders];
     this.notify();
 
+    // Persist to server for Admin view
     setOrdersServer({
       data: {
-        orders: this.orders,
-        deletedOrderIds: this.deletedOrderIds,
-        lastClearedAt: this.lastClearedAt,
+        orders: this.serverOrders,
+        adminDeletedOrderIds: this.adminDeletedOrderIds,
+        adminLastClearedAt: this.adminLastClearedAt,
       },
     }).catch((e) => console.error("Server save failed on addOrder:", e));
 
@@ -183,60 +213,82 @@ class OrderStore {
   };
 
   cancelOrder = (id: string) => {
-    this.orders = this.orders.map((o) =>
+    this.customerOrders = this.customerOrders.map((o) =>
+      o.id === id ? { ...o, status: "Cancelled" as OrderStatus } : o
+    );
+    this.serverOrders = this.serverOrders.map((o) =>
       o.id === id ? { ...o, status: "Cancelled" as OrderStatus } : o
     );
     this.notify();
 
     setOrdersServer({
       data: {
-        orders: this.orders,
-        deletedOrderIds: this.deletedOrderIds,
-        lastClearedAt: this.lastClearedAt,
+        orders: this.serverOrders,
+        adminDeletedOrderIds: this.adminDeletedOrderIds,
+        adminLastClearedAt: this.adminLastClearedAt,
       },
     }).catch((e) => console.error("Server save failed on cancelOrder:", e));
   };
 
   updateOrderStatus = (id: string, status: OrderStatus) => {
-    this.orders = this.orders.map((o) =>
+    this.customerOrders = this.customerOrders.map((o) =>
+      o.id === id ? { ...o, status } : o
+    );
+    this.serverOrders = this.serverOrders.map((o) =>
       o.id === id ? { ...o, status } : o
     );
     this.notify();
 
     setOrdersServer({
       data: {
-        orders: this.orders,
-        deletedOrderIds: this.deletedOrderIds,
-        lastClearedAt: this.lastClearedAt,
+        orders: this.serverOrders,
+        adminDeletedOrderIds: this.adminDeletedOrderIds,
+        adminLastClearedAt: this.adminLastClearedAt,
       },
     }).catch((e) => console.error("Server save failed on updateOrderStatus:", e));
   };
 
-  deleteOrder = (id: string) => {
-    this.orders = this.orders.filter((o) => o.id !== id);
-    if (!this.deletedOrderIds.includes(id)) {
-      this.deletedOrderIds.push(id);
+  // Customer Clear Actions (ONLY affects Customer Local View)
+  deleteCustomerOrder = (id: string) => {
+    this.customerOrders = this.customerOrders.filter((o) => o.id !== id);
+    if (!this.customerDeletedOrderIds.includes(id)) {
+      this.customerDeletedOrderIds.push(id);
+    }
+    this.notify();
+  };
+
+  clearCustomerOrders = () => {
+    const now = Date.now();
+    this.customerOrders = [];
+    this.customerDeletedOrderIds = [];
+    this.customerLastClearedAt = now;
+    this.notify();
+  };
+
+  // Admin Clear Actions (ONLY affects Admin View)
+  deleteAdminOrder = (id: string) => {
+    if (!this.adminDeletedOrderIds.includes(id)) {
+      this.adminDeletedOrderIds.push(id);
     }
     this.notify();
 
     setOrdersServer({
       data: {
-        orders: this.orders,
-        deletedOrderIds: this.deletedOrderIds,
-        lastClearedAt: this.lastClearedAt,
+        orders: this.serverOrders,
+        adminDeletedOrderIds: this.adminDeletedOrderIds,
+        adminLastClearedAt: this.adminLastClearedAt,
       },
-    }).catch((e) => console.error("Server save failed on deleteOrder:", e));
+    }).catch((e) => console.error("Server save failed on deleteAdminOrder:", e));
   };
 
-  clearAllOrders = () => {
+  clearAdminOrders = () => {
     const now = Date.now();
-    this.orders = [];
-    this.deletedOrderIds = [];
-    this.lastClearedAt = now;
+    this.adminLastClearedAt = now;
+    this.adminDeletedOrderIds = [];
     this.notify();
 
-    clearAllOrdersServer().catch((e) =>
-      console.error("Server clearAllOrders failed:", e)
+    clearAdminOrdersServer().catch((e) =>
+      console.error("Server clearAdminOrders failed:", e)
     );
   };
 }
@@ -244,18 +296,30 @@ class OrderStore {
 export const orderStore = new OrderStore();
 
 export function useOrders() {
-  const orders = useSyncExternalStore(
+  const customerOrders = useSyncExternalStore(
     orderStore.subscribe,
-    orderStore.getSnapshot,
+    orderStore.getCustomerSnapshot,
+    orderStore.getServerSnapshot
+  );
+
+  const adminOrders = useSyncExternalStore(
+    orderStore.subscribe,
+    orderStore.getAdminSnapshot,
     orderStore.getServerSnapshot
   );
 
   return {
-    orders,
+    orders: customerOrders, // Default for customer components
+    customerOrders,
+    adminOrders,
     addOrder: orderStore.addOrder,
     cancelOrder: orderStore.cancelOrder,
     updateOrderStatus: orderStore.updateOrderStatus,
-    deleteOrder: orderStore.deleteOrder,
-    clearAllOrders: orderStore.clearAllOrders,
+    deleteOrder: orderStore.deleteCustomerOrder, // Legacy alias for customer delete
+    deleteCustomerOrder: orderStore.deleteCustomerOrder,
+    clearCustomerOrders: orderStore.clearCustomerOrders,
+    clearAllOrders: orderStore.clearCustomerOrders, // Legacy alias for customer clear
+    deleteAdminOrder: orderStore.deleteAdminOrder,
+    clearAdminOrders: orderStore.clearAdminOrders,
   };
 }

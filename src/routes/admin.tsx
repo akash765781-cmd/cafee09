@@ -37,7 +37,7 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminPage() {
-  const { orders, updateOrderStatus, deleteOrder, clearAllOrders, cancelOrder } = useOrders();
+  const { adminOrders: orders, updateOrderStatus, deleteAdminOrder, clearAdminOrders, cancelOrder } = useOrders();
 
   // Authentication State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -166,9 +166,9 @@ function AdminPage() {
   };
 
   const handleResetOrders = () => {
-    if (confirm("Are you sure you want to delete all order records? This cannot be undone.")) {
-      clearAllOrders();
-      toast.success("All order records cleared.");
+    if (confirm("Are you sure you want to delete all order records from Admin panel? (Customer history will remain safe)")) {
+      clearAdminOrders();
+      toast.success("Admin order panel cleared.");
     }
   };
 
@@ -376,8 +376,8 @@ function AdminPage() {
                       </div>
                       <button
                         onClick={() => {
-                          if (confirm(`Delete record for order ${order.id}?`)) {
-                            deleteOrder(order.id);
+                          if (confirm(`Delete record for order ${order.id} from Admin panel?`)) {
+                            deleteAdminOrder(order.id);
                           }
                         }}
                         className="p-2 border border-border text-muted-foreground hover:text-destructive hover:bg-destructive/5 rounded-sm transition-colors"
