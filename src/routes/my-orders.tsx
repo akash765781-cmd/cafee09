@@ -46,6 +46,7 @@ function MyOrdersPage() {
     cancelOrder,
     deleteCustomerOrder,
     clearCustomerOrders,
+    restoreOrdersByPhoneOrId,
   } = useOrders();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -126,7 +127,13 @@ function MyOrdersPage() {
                 type="text"
                 placeholder="Search Order ID, Phone or Name..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSearchQuery(val);
+                  if (val.trim().length >= 4) {
+                    restoreOrdersByPhoneOrId(val);
+                  }
+                }}
                 className="w-full pl-10 pr-4 py-2 bg-background text-xs text-foreground placeholder:text-muted-foreground/60 rounded-sm border border-border focus:border-primary focus:outline-none"
               />
             </div>
@@ -144,20 +151,48 @@ function MyOrdersPage() {
 
         {/* Orders List */}
         {filteredOrders.length === 0 ? (
-          <div className="rounded-sm border border-border bg-card p-12 text-center my-8">
-            <Clock className="mx-auto size-14 text-muted-foreground/40 mb-4" />
-            <h2 className="font-display text-2xl font-bold uppercase tracking-tight">
-              No Orders Found
-            </h2>
-            <p className="text-xs md:text-sm text-muted-foreground mt-2 max-w-md mx-auto">
-              {searchQuery
-                ? "No previous orders matched your search. Try your Order ID or Phone number."
-                : "You haven't placed any orders yet on this device."}
-            </p>
-            <div className="mt-6">
+          <div className="rounded-sm border border-border bg-card p-8 md:p-12 text-center my-8 space-y-6 max-w-lg mx-auto">
+            <div>
+              <Clock className="mx-auto size-12 text-muted-foreground/40 mb-4" />
+              <h2 className="font-display text-xl font-bold uppercase tracking-tight">
+                No Local Orders Found
+              </h2>
+              <p className="text-xs text-muted-foreground mt-2">
+                {searchQuery
+                  ? "No previous orders matched your search. Try another Order ID or Phone number."
+                  : "You haven't placed any orders on this browser yet, or your local history was cleared."}
+              </p>
+            </div>
+
+            {/* Sync Form */}
+            <div className="border-t border-border/60 pt-6 space-y-3">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-primary">
+                Find &amp; Restore Previous Orders
+              </p>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                Already ordered from another device or cleared your cookies? Enter your 10-digit mobile number or Order ID to sync and track all your previous orders (both Delivered &amp; Cancelled) from the server.
+              </p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="e.g. 9876543210 or UK09-1234"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setSearchQuery(val);
+                    if (val.trim().length >= 4) {
+                      restoreOrdersByPhoneOrId(val);
+                    }
+                  }}
+                  className="flex-1 px-3 py-2 bg-background text-xs text-foreground placeholder:text-muted-foreground/50 rounded-sm border border-border focus:border-primary focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="border-t border-border/60 pt-6 flex justify-center">
               <Link
                 to="/order"
-                className="inline-flex items-center justify-center min-h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 text-xs uppercase tracking-[0.16em] transition-colors rounded-sm"
+                className="inline-flex items-center justify-center min-h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 text-xs uppercase tracking-wider rounded-sm transition-colors"
               >
                 Place New Order Now
               </Link>

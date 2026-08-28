@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
 import { OrderFormSection } from "@/components/OrderFormSection";
 import { CTASection } from "@/components/CTASection";
 
@@ -6,7 +7,12 @@ const title = "Order Online — UK 09 Restaurant, Bathinda";
 const description =
   "Place and track your order online at UK 09. Fresh food delivered hot to your door in Bathinda.";
 
+const orderSearchSchema = z.object({
+  tab: z.enum(["order", "track"]).optional(),
+});
+
 export const Route = createFileRoute("/order")({
+  validateSearch: (search) => orderSearchSchema.parse(search),
   head: () => ({
     meta: [
       { title },

@@ -67,11 +67,21 @@ const statusSteps = [
   { key: "Delivered", label: "Delivered", icon: CheckCircle },
 ];
 
+import { useSearch } from "@tanstack/react-router";
+
 export function OrderFormSection() {
+  const search = useSearch({ from: "/order" });
   const { items, total, removeItem, updateQuantity, clearCart } = useCart();
-  const { orders, addOrder, cancelOrder, deleteOrder, clearAllOrders } = useOrders();
+  const { orders, addOrder, cancelOrder, deleteOrder, clearAllOrders, restoreOrdersByPhoneOrId } = useOrders();
 
   const [activeTab, setActiveTab] = useState<"order" | "track">("order");
+
+  useEffect(() => {
+    if (search && (search.tab === "track" || search.tab === "order")) {
+      setActiveTab(search.tab);
+    }
+  }, [search]);
+
   const [form, setForm] = useState<OrderForm>({ name: "", phone: "", address: "" });
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -566,8 +576,13 @@ export function OrderFormSection() {
                   <input
                     type="text"
                     placeholder="Search Order ID / Phone..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setSearchQuery(val);
+                      if (val.trim().length >= 4) {
+                        restoreOrdersByPhoneOrId(val);
+                      }
+                    }}
                     className="w-full pl-9 pr-4 py-2 bg-card text-xs text-foreground placeholder:text-muted-foreground/60 rounded-sm border border-border focus:border-primary focus:outline-none"
                   />
                 </div>

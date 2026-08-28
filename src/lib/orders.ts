@@ -297,6 +297,39 @@ class OrderStore {
       console.error("Server clearAdminOrders failed:", e)
     );
   };
+
+  restoreOrdersByPhoneOrId = (query: string) => {
+    const cleanQuery = query.trim().toLowerCase();
+    if (!cleanQuery) return;
+
+    // Find matches in serverOrders
+    const matches = this.serverOrders.filter((o) => {
+      const matchId = o.id.toLowerCase() === cleanQuery || o.id.toLowerCase() === `uk09-${cleanQuery}`;
+      const matchPhone = o.phone.replace(/\s/g, "") === cleanQuery.replace(/\s/g, "");
+      return matchId || matchPhone;
+    });
+
+    if (matches.length > 0) {
+      let addedAny = false;
+      const currentIds = new Set(this.customerOrders.map(o => o.id));
+      const newCustOrders = [...this.customerOrders];
+
+      for (const match of matches) {
+        if (!currentIds.has(match.id)) {
+          if (!this.customerDeletedOrderIds.includes(match.id)) {
+            newCustOrders.push(match);
+            addedAny = true;
+          }
+        }
+      }
+
+      if (addedAny) {
+        newCustOrders.sort((a, b) => (b.createdAtTimestamp || 0) - (a.createdAtTimestamp || 0));
+        this.customerOrders = newCustOrders;
+        this.notify();
+      }
+    }
+  };
 }
 
 export const orderStore = new OrderStore();
@@ -327,5 +360,6 @@ export function useOrders() {
     clearAllOrders: orderStore.clearCustomerOrders, // Legacy alias for customer clear
     deleteAdminOrder: orderStore.deleteAdminOrder,
     clearAdminOrders: orderStore.clearAdminOrders,
+    restoreOrdersByPhoneOrId: orderStore.restoreOrdersByPhoneOrId,
   };
 }
