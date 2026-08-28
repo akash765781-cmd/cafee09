@@ -6,10 +6,10 @@ import { _ as useRouter, c as HeadContent, d as createRouter, f as Outlet, g as 
 import { t as Toaster } from "../_libs/sonner.mjs";
 import { t as useCart } from "./cart-C9zTcxRu.mjs";
 import { t as QueryClient } from "../_libs/tanstack__query-core.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-UODRg8DE.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-70muPTna.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
-var styles_default = "/assets/styles-ZYfUnd9c.css";
+var styles_default = "/assets/styles-B98xe-kl.css";
 function reportLovableError(error, context = {}) {
 	if (typeof window === "undefined") return;
 	window.__lovableEvents?.captureException?.(error, {
@@ -614,7 +614,7 @@ var Route$3 = createFileRoute("/menu")({
 	] }),
 	component: lazyRouteComponent($$splitComponentImporter$3, "component")
 });
-var $$splitComponentImporter$2 = () => import("./my-orders-B-BUQt-y.mjs");
+var $$splitComponentImporter$2 = () => import("./my-orders-e_zXtMCk.mjs");
 var title$2 = "My Orders — UK 09 Restaurant, Bathinda";
 var description$2 = "View and track all your previous and active orders placed at UK 09 Restaurant, Bathinda.";
 var Route$2 = createFileRoute("/my-orders")({

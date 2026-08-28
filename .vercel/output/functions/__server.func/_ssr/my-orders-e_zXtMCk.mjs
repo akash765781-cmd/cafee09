@@ -1,11 +1,10 @@
 import { r as __toESM } from "../_runtime.mjs";
 import { n as require_react, r as require_jsx_runtime } from "../_libs/react+tanstack__react-query.mjs";
 import { C as Clock, D as Bike, E as ChefHat, T as CircleCheckBig, a as Trash2, k as ArrowLeft, r as TriangleAlert, s as ShoppingBag, u as Search, w as CircleX } from "../_libs/lucide-react.mjs";
-import { n as Reveal, t as CTASection } from "./CTASection-Pmk0H9N2.mjs";
 import { g as Link } from "../_libs/@tanstack/react-router+[...].mjs";
 import { t as useOrders } from "./orders-zybE3Ddq.mjs";
 import { n as toast } from "../_libs/sonner.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/my-orders-B-BUQt-y.js
+//#region node_modules/.nitro/vite/services/ssr/assets/my-orders-e_zXtMCk.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var statusSteps = [
@@ -46,21 +45,18 @@ function MyOrdersPage() {
 		}
 	};
 	const filteredOrders = orders.filter((o) => o.id.toLowerCase().includes(searchQuery.toLowerCase().trim()) || o.phone.includes(searchQuery.trim()) || o.name.toLowerCase().includes(searchQuery.toLowerCase().trim()));
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		className: "pt-24 md:pt-28 pb-16 min-h-screen bg-background",
-		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+		className: "pt-24 md:pt-28 pb-20 min-h-screen bg-background",
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 			className: "shell max-w-5xl mx-auto space-y-8",
 			children: [
-				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Reveal, {
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 					className: "flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border pb-6",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							className: "flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2",
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
-								to: "/order",
-								className: "hover:text-primary transition-colors flex items-center gap-1",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowLeft, { className: "size-3.5" }), "Back to Order Page"]
-							})
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
+							to: "/order",
+							className: "inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors mb-3",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowLeft, { className: "size-3.5" }), "Back to Order Page"]
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
 							className: "font-display text-3xl md:text-4xl font-extrabold uppercase tracking-tight text-foreground",
@@ -75,7 +71,6 @@ function MyOrdersPage() {
 						children: [orders.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 							onClick: handleClearHistory,
 							className: "inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold text-muted-foreground hover:text-destructive border border-border hover:border-destructive/40 rounded-sm transition-colors",
-							title: "Clear order history from your device view",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trash2, { className: "size-3.5" }), "Clear My History"]
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
 							to: "/order",
@@ -84,7 +79,7 @@ function MyOrdersPage() {
 						})]
 					})]
 				}),
-				orders.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Reveal, {
+				orders.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 					className: "flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-card border border-border p-4 rounded-sm",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "relative w-full sm:w-80",
@@ -98,22 +93,25 @@ function MyOrdersPage() {
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
 						className: "text-xs text-muted-foreground font-medium",
 						children: [
-							"Showing ",
+							"Showing",
+							" ",
 							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 								className: "text-foreground font-bold",
 								children: filteredOrders.length
 							}),
-							" of",
+							" ",
+							"of",
 							" ",
 							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 								className: "text-foreground font-bold",
 								children: orders.length
 							}),
-							" orders"
+							" ",
+							"orders"
 						]
 					})]
 				}),
-				filteredOrders.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Reveal, {
+				filteredOrders.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 					className: "rounded-sm border border-border bg-card p-12 text-center my-8",
 					children: [
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Clock, { className: "mx-auto size-14 text-muted-foreground/40 mb-4" }),
@@ -123,7 +121,7 @@ function MyOrdersPage() {
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 							className: "text-xs md:text-sm text-muted-foreground mt-2 max-w-md mx-auto",
-							children: searchQuery ? "No previous orders matched your search query. Try typing your Order ID or Phone number." : "You haven't saved any previous order records on this device yet."
+							children: searchQuery ? "No previous orders matched your search. Try your Order ID or Phone number." : "You haven't placed any orders yet on this device."
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 							className: "mt-6",
@@ -138,8 +136,9 @@ function MyOrdersPage() {
 					className: "space-y-6",
 					children: filteredOrders.map((order) => {
 						const isCancelled = order.status === "Cancelled";
-						return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Reveal, {
-							className: "rounded-sm border border-border bg-card p-6 space-y-6 hover:border-border/80 transition-colors",
+						const isDelivered = order.status === "Delivered";
+						return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "rounded-sm border border-border bg-card p-6 space-y-6",
 							children: [
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 									className: "flex flex-wrap gap-4 items-center justify-between border-b border-border/60 pb-4",
@@ -149,25 +148,27 @@ function MyOrdersPage() {
 											className: "font-display text-xl font-bold text-foreground",
 											children: order.id
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											className: `text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-sm border ${isCancelled ? "bg-destructive/10 text-destructive border-destructive/30" : order.status === "Delivered" ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30" : "bg-primary/10 text-primary border-primary/30"}`,
+											className: `text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-sm border ${isCancelled ? "bg-destructive/10 text-destructive border-destructive/30" : isDelivered ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30" : "bg-primary/10 text-primary border-primary/30"}`,
 											children: order.status
 										})]
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
 										className: "text-xs text-muted-foreground mt-1",
 										children: [
-											"Placed at ",
+											"Placed at",
+											" ",
 											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 												className: "text-foreground font-medium",
 												children: order.createdAt
 											}),
-											" • Name: ",
+											" ",
+											"• ",
 											order.name,
 											" (",
 											order.phone,
 											")"
 										]
 									})] }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "flex items-center gap-4",
+										className: "flex items-center gap-3",
 										children: [
 											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 												className: "text-right",
@@ -179,12 +180,12 @@ function MyOrdersPage() {
 													children: ["₹", order.total]
 												})]
 											}),
-											!isCancelled && order.status !== "Delivered" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+											!isCancelled && !isDelivered && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 												onClick: () => setCancellingId(order.id),
 												className: "inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-destructive hover:bg-destructive/10 border border-destructive/30 px-3 py-1.5 rounded-sm transition-colors",
 												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleX, { className: "size-3.5" }), "Cancel"]
 											}),
-											(isCancelled || order.status === "Delivered") && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+											(isCancelled || isDelivered) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 												onClick: () => {
 													if (confirm(`Remove order ${order.id} from your view?`)) {
 														deleteCustomerOrder(order.id);
@@ -192,7 +193,6 @@ function MyOrdersPage() {
 													}
 												},
 												className: "inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive border border-border hover:border-destructive/30 px-2.5 py-1.5 rounded-sm transition-colors",
-												title: "Remove from your device view",
 												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trash2, { className: "size-3.5" }), "Clear"]
 											})
 										]
@@ -226,7 +226,7 @@ function MyOrdersPage() {
 										className: "text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-4",
 										children: "Live Order Progress Status"
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-										className: "grid grid-cols-4 gap-2 relative",
+										className: "grid grid-cols-4 gap-2",
 										children: statusSteps.map((step, idx) => {
 											const StepIcon = step.icon;
 											const isCurrent = order.status === step.key;
@@ -262,7 +262,8 @@ function MyOrdersPage() {
 											className: "flex justify-between text-muted-foreground",
 											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
 												item.quantity,
-												"x ",
+												"x",
+												" ",
 												/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 													className: "text-foreground",
 													children: item.name
@@ -280,7 +281,7 @@ function MyOrdersPage() {
 												className: "text-muted-foreground text-[11px]",
 												children: "Delivery Address"
 											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-												className: "text-foreground text-[11px] max-w-sm truncate text-right",
+												className: "text-foreground text-[11px] max-w-xs truncate text-right",
 												children: order.address
 											})]
 										})
@@ -291,10 +292,7 @@ function MyOrdersPage() {
 					})
 				})
 			]
-		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-			className: "mt-16",
-			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CTASection, {})
-		})]
+		})
 	});
 }
 //#endregion
