@@ -1,4 +1,4 @@
-//#region node_modules/.nitro/vite/services/ssr/assets/_tanstack-start-manifest_v-QbwtZ0SQ.js
+//#region node_modules/.nitro/vite/services/ssr/assets/_tanstack-start-manifest_v-CDq0IPEz.js
 var tsrStartManifest = () => ({ routes: {
 	__root__: {
 		filePath: "C:/Users/akash/OneDrive/Desktop/uk 09a/src/routes/__root.tsx",
@@ -13,45 +13,45 @@ var tsrStartManifest = () => ({ routes: {
 			"/reviews"
 		],
 		preloads: [
-			"/assets/index-CtC1qp4w.js",
+			"/assets/index-BdsTk7rt.js",
 			"/assets/createLucideIcon-DxezZrQ2.js",
 			"/assets/dist-I-etoz58.js"
 		],
 		scripts: [{ attrs: {
 			type: "module",
 			async: !0,
-			src: "/assets/index-CtC1qp4w.js"
+			src: "/assets/index-BdsTk7rt.js"
 		} }]
 	},
 	"/": {
 		filePath: "C:/Users/akash/OneDrive/Desktop/uk 09a/src/routes/index.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/routes-DJU-yxJt.js",
-			"/assets/MenuSection--yovz7A1.js",
-			"/assets/CTASection-BFJTKzXD.js",
-			"/assets/ReviewsSection-Cc81zFwN.js",
-			"/assets/FoodFeature-CW4pr65p.js",
-			"/assets/LocationSection-jd79Ff93.js"
+			"/assets/routes-wTSUuOfa.js",
+			"/assets/MenuSection-lRHJk0pF.js",
+			"/assets/CTASection-B8Y_PmgR.js",
+			"/assets/ReviewsSection-C2heVLjS.js",
+			"/assets/FoodFeature-CQt3J5vd.js",
+			"/assets/LocationSection-CkJCACc4.js"
 		]
 	},
 	"/about": {
 		filePath: "C:/Users/akash/OneDrive/Desktop/uk 09a/src/routes/about.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/about-BgsNRSWz.js",
-			"/assets/CTASection-BFJTKzXD.js",
+			"/assets/about-Bwk1UOQY.js",
+			"/assets/CTASection-B8Y_PmgR.js",
 			"/assets/PageHeader-7EkU44P2.js",
-			"/assets/FoodFeature-CW4pr65p.js"
+			"/assets/FoodFeature-CQt3J5vd.js"
 		]
 	},
 	"/admin": {
 		filePath: "C:/Users/akash/OneDrive/Desktop/uk 09a/src/routes/admin.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/admin-Cfr8xhDL.js",
-			"/assets/db-LtsHsLn6.js",
-			"/assets/orders-COqVKi3q.js",
+			"/assets/admin-BCwI1v2k.js",
+			"/assets/db-B1nk-tbu.js",
+			"/assets/orders-nvBzGOMX.js",
 			"/assets/user-BZe9OC4G.js"
 		]
 	},
@@ -59,19 +59,19 @@ var tsrStartManifest = () => ({ routes: {
 		filePath: "C:/Users/akash/OneDrive/Desktop/uk 09a/src/routes/location.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/location-BwWTJwEN.js",
-			"/assets/CTASection-BFJTKzXD.js",
+			"/assets/location-CzxtudGR.js",
+			"/assets/CTASection-B8Y_PmgR.js",
 			"/assets/PageHeader-7EkU44P2.js",
-			"/assets/LocationSection-jd79Ff93.js"
+			"/assets/LocationSection-CkJCACc4.js"
 		]
 	},
 	"/menu": {
 		filePath: "C:/Users/akash/OneDrive/Desktop/uk 09a/src/routes/menu.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/menu-BWNZrRW9.js",
-			"/assets/MenuSection--yovz7A1.js",
-			"/assets/CTASection-BFJTKzXD.js",
+			"/assets/menu-Cx0F_WEn.js",
+			"/assets/MenuSection-lRHJk0pF.js",
+			"/assets/CTASection-B8Y_PmgR.js",
 			"/assets/PageHeader-7EkU44P2.js"
 		]
 	},
@@ -79,19 +79,19 @@ var tsrStartManifest = () => ({ routes: {
 		filePath: "C:/Users/akash/OneDrive/Desktop/uk 09a/src/routes/my-orders.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/my-orders-B3JsdBaW.js",
+			"/assets/my-orders-CYyLRTTA.js",
 			"/assets/triangle-alert-1h8m-V1p.js",
-			"/assets/orders-COqVKi3q.js"
+			"/assets/orders-nvBzGOMX.js"
 		]
 	},
 	"/order": {
 		filePath: "C:/Users/akash/OneDrive/Desktop/uk 09a/src/routes/order.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/order-BfRYEFxK.js",
+			"/assets/order-Cv-uQKUe.js",
 			"/assets/triangle-alert-1h8m-V1p.js",
-			"/assets/orders-COqVKi3q.js",
-			"/assets/CTASection-BFJTKzXD.js",
+			"/assets/orders-nvBzGOMX.js",
+			"/assets/CTASection-B8Y_PmgR.js",
 			"/assets/plus-Dj1SizUn.js",
 			"/assets/user-BZe9OC4G.js"
 		]
@@ -100,9 +100,9 @@ var tsrStartManifest = () => ({ routes: {
 		filePath: "C:/Users/akash/OneDrive/Desktop/uk 09a/src/routes/reviews.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/reviews-Dwb3SzgQ.js",
-			"/assets/CTASection-BFJTKzXD.js",
-			"/assets/ReviewsSection-Cc81zFwN.js",
+			"/assets/reviews-D3ofNUsf.js",
+			"/assets/CTASection-B8Y_PmgR.js",
+			"/assets/ReviewsSection-C2heVLjS.js",
 			"/assets/PageHeader-7EkU44P2.js"
 		]
 	}

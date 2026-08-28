@@ -7,7 +7,7 @@ import { t as Toaster } from "../_libs/sonner.mjs";
 import { t as useCart } from "./cart-Cx1mweoL.mjs";
 import { t as QueryClient } from "../_libs/tanstack__query-core.mjs";
 import { n as objectType, t as enumType } from "../_libs/zod.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-D3TfyAzA.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-C-jj6NF3.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var styles_default = "/assets/styles-wSPcqpeA.css";
@@ -68,19 +68,20 @@ function Navbar() {
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
 					className: "hidden items-center gap-8 md:flex",
-					children: navLinks.map((link) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-						to: link.to,
-						activeOptions: { exact: link.to === "/" },
-						activeProps: { className: "text-foreground after:scale-x-100" },
-						className: "relative text-sm font-medium tracking-wide text-muted-foreground transition-colors after:absolute after:-bottom-1.5 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-primary after:transition-transform hover:text-foreground hover:after:scale-x-100",
-						children: link.label
-					}) }, link.to))
+					children: navLinks.map((link) => {
+						const isActive = link.to === "/" ? pathname === "/" : pathname.startsWith(link.to);
+						return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", {
+							href: link.to,
+							className: `relative text-sm font-medium tracking-wide transition-colors after:absolute after:-bottom-1.5 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-primary after:transition-transform hover:text-foreground hover:after:scale-x-100 ${isActive ? "text-foreground after:scale-x-100" : "text-muted-foreground"}`,
+							children: link.label
+						}) }, link.to);
+					})
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 					className: "flex items-center gap-2",
 					children: [
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
-							to: "/order",
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("a", {
+							href: "/order",
 							className: "relative hidden items-center gap-2 bg-secondary text-foreground border border-border px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] transition-colors hover:border-primary hover:text-primary md:inline-flex",
 							children: [
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ShoppingBag, {
@@ -125,13 +126,14 @@ function Navbar() {
 			className: "border-t border-border bg-background md:hidden",
 			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
 				className: "shell flex flex-col py-2",
-				children: navLinks.map((link) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-					to: link.to,
-					activeOptions: { exact: link.to === "/" },
-					activeProps: { className: "text-primary" },
-					className: "block border-b border-border py-4 font-display text-2xl font-extrabold tracking-tight",
-					children: link.label
-				}) }, link.to))
+				children: navLinks.map((link) => {
+					const isActive = link.to === "/" ? pathname === "/" : pathname.startsWith(link.to);
+					return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", {
+						href: link.to,
+						className: `block border-b border-border py-4 font-display text-2xl font-extrabold tracking-tight ${isActive ? "text-primary" : "text-foreground"}`,
+						children: link.label
+					}) }, link.to);
+				})
 			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 				className: "shell grid grid-cols-2 gap-3 pb-5",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", {
@@ -247,16 +249,16 @@ function MobileActionBar() {
 					className: "size-3.5"
 				}), "Call"]
 			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
-				to: "/menu",
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("a", {
+				href: "/menu",
 				className: "flex min-h-14 flex-col items-center justify-center gap-1 border-x border-border text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ShoppingBag, {
 					"aria-hidden": "true",
 					className: "size-3.5"
 				}), "Menu"]
 			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
-				to: "/order",
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("a", {
+				href: "/order",
 				className: "relative flex min-h-14 flex-col items-center justify-center gap-1 border-r border-border bg-primary text-[0.6rem] font-semibold uppercase tracking-wider text-primary-foreground",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 					className: "relative",

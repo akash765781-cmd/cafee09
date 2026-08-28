@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import { MapPin, Phone, ShoppingBag } from "lucide-react";
 import { business } from "@/lib/business";
 import { useCart } from "@/lib/cart";
@@ -14,15 +13,15 @@ export function MobileActionBar() {
         <Phone aria-hidden="true" className="size-3.5" />
         Call
       </a>
-      <Link
-        to="/menu"
+      <a
+        href="/menu"
         className="flex min-h-14 flex-col items-center justify-center gap-1 border-x border-border text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground"
       >
         <ShoppingBag aria-hidden="true" className="size-3.5" />
         Menu
-      </Link>
-      <Link
-        to="/order"
+      </a>
+      <a
+        href="/order"
         className="relative flex min-h-14 flex-col items-center justify-center gap-1 border-r border-border bg-primary text-[0.6rem] font-semibold uppercase tracking-wider text-primary-foreground"
       >
         <div className="relative">
@@ -34,7 +33,7 @@ export function MobileActionBar() {
           )}
         </div>
         Order
-      </Link>
+      </a>
       <a
         href={business.directionsHref}
         target="_blank"
