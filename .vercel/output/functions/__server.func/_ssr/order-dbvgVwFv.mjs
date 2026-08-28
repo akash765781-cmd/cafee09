@@ -1,13 +1,13 @@
 import { r as __toESM } from "../_runtime.mjs";
 import { n as require_react, r as require_jsx_runtime } from "../_libs/react+tanstack__react-query.mjs";
 import { t as business } from "./business-DZM1jd34.mjs";
-import { C as Clock, D as Bike, E as ChefHat, S as LoaderCircle, T as CircleCheckBig, a as Trash2, f as Plus, m as Minus, n as User, p as Phone, r as TriangleAlert, s as ShoppingBag, u as Search, w as CircleX, y as MapPin } from "../_libs/lucide-react.mjs";
+import { C as Clock, D as ChefHat, O as Bike, S as LoaderCircle, T as CircleCheckBig, a as Trash2, f as Plus, m as Minus, n as User, p as Phone, r as TriangleAlert, s as ShoppingBag, u as Search, w as CircleX, y as MapPin } from "../_libs/lucide-react.mjs";
 import { n as Reveal, t as CTASection } from "./CTASection-Pmk0H9N2.mjs";
-import { g as Link } from "../_libs/@tanstack/react-router+[...].mjs";
-import { t as useOrders } from "./orders-D6j17ey2.mjs";
+import { _ as useSearch, g as Link } from "../_libs/@tanstack/react-router+[...].mjs";
+import { t as useOrders } from "./orders-CmW5udys.mjs";
 import { n as toast } from "../_libs/sonner.mjs";
 import { t as useCart } from "./cart-Cx1mweoL.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/order-D4yLjWk3.js
+//#region node_modules/.nitro/vite/services/ssr/assets/order-dbvgVwFv.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function validate(form) {
@@ -44,9 +44,13 @@ var statusSteps = [
 	}
 ];
 function OrderFormSection() {
+	const search = useSearch({ from: "/order" });
 	const { items, total, removeItem, updateQuantity, clearCart } = useCart();
-	const { orders, addOrder, cancelOrder, deleteOrder, clearAllOrders } = useOrders();
+	const { orders, addOrder, cancelOrder, deleteOrder, clearAllOrders, restoreOrdersByPhoneOrId } = useOrders();
 	const [activeTab, setActiveTab] = (0, import_react.useState)("order");
+	(0, import_react.useEffect)(() => {
+		if (search && (search.tab === "track" || search.tab === "order")) setActiveTab(search.tab);
+	}, [search]);
 	const [form, setForm] = (0, import_react.useState)({
 		name: "",
 		phone: "",
@@ -591,8 +595,11 @@ function OrderFormSection() {
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { className: "absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 									type: "text",
 									placeholder: "Search Order ID / Phone...",
-									value: searchQuery,
-									onChange: (e) => setSearchQuery(e.target.value),
+									onChange: (e) => {
+										const val = e.target.value;
+										setSearchQuery(val);
+										if (val.trim().length >= 4) restoreOrdersByPhoneOrId(val);
+									},
 									className: "w-full pl-9 pr-4 py-2 bg-card text-xs text-foreground placeholder:text-muted-foreground/60 rounded-sm border border-border focus:border-primary focus:outline-none"
 								})]
 							}), orders.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {

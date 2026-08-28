@@ -149,6 +149,7 @@ export function Navbar() {
                     className="block border-b border-border py-4 font-display text-2xl font-extrabold tracking-tight"
                   >
                     {link.label}
+                  </Link>
                 )}
               </li>
             ))}

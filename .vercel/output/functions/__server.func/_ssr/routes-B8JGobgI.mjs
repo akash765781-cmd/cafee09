@@ -1,6 +1,6 @@
 import { r as require_jsx_runtime } from "../_libs/react+tanstack__react-query.mjs";
 import { t as business } from "./business-DZM1jd34.mjs";
-import { O as ArrowRight, y as MapPin } from "../_libs/lucide-react.mjs";
+import { k as ArrowRight, y as MapPin } from "../_libs/lucide-react.mjs";
 import { t as CTASection } from "./CTASection-Pmk0H9N2.mjs";
 import { n as FoodFeature, r as Gallery, t as AboutSection } from "./FoodFeature-D4DV7KtO.mjs";
 import { g as Link } from "../_libs/@tanstack/react-router+[...].mjs";

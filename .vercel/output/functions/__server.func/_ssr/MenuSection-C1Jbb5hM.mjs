@@ -1,7 +1,7 @@
 import { r as __toESM } from "../_runtime.mjs";
 import { n as require_react, r as require_jsx_runtime } from "../_libs/react+tanstack__react-query.mjs";
 import { n as menuCategories } from "./business-DZM1jd34.mjs";
-import { O as ArrowRight, f as Plus } from "../_libs/lucide-react.mjs";
+import { f as Plus, k as ArrowRight } from "../_libs/lucide-react.mjs";
 import { n as Reveal } from "./CTASection-Pmk0H9N2.mjs";
 import { g as Link } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as toast } from "../_libs/sonner.mjs";

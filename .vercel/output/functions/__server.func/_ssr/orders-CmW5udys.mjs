@@ -1,7 +1,7 @@
 import { r as __toESM } from "../_runtime.mjs";
 import { n as require_react } from "../_libs/react+tanstack__react-query.mjs";
 import { a as setOrdersServer, n as getOrdersServer, t as clearAdminOrdersServer } from "./db-BN3aOrq2.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/orders-D6j17ey2.js
+//#region node_modules/.nitro/vite/services/ssr/assets/orders-CmW5udys.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var emptyOrders = [];
 var OrderStore = class {
@@ -198,6 +198,31 @@ var OrderStore = class {
 		this.notify();
 		clearAdminOrdersServer().catch((e) => console.error("Server clearAdminOrders failed:", e));
 	};
+	restoreOrdersByPhoneOrId = (query) => {
+		const cleanQuery = query.trim().toLowerCase();
+		if (!cleanQuery) return;
+		const matches = this.serverOrders.filter((o) => {
+			const matchId = o.id.toLowerCase() === cleanQuery || o.id.toLowerCase() === `uk09-${cleanQuery}`;
+			const matchPhone = o.phone.replace(/\s/g, "") === cleanQuery.replace(/\s/g, "");
+			return matchId || matchPhone;
+		});
+		if (matches.length > 0) {
+			let addedAny = false;
+			const currentIds = new Set(this.customerOrders.map((o) => o.id));
+			const newCustOrders = [...this.customerOrders];
+			for (const match of matches) if (!currentIds.has(match.id)) {
+				if (!this.customerDeletedOrderIds.includes(match.id)) {
+					newCustOrders.push(match);
+					addedAny = true;
+				}
+			}
+			if (addedAny) {
+				newCustOrders.sort((a, b) => (b.createdAtTimestamp || 0) - (a.createdAtTimestamp || 0));
+				this.customerOrders = newCustOrders;
+				this.notify();
+			}
+		}
+	};
 };
 var orderStore = new OrderStore();
 function useOrders() {
@@ -214,7 +239,8 @@ function useOrders() {
 		clearCustomerOrders: orderStore.clearCustomerOrders,
 		clearAllOrders: orderStore.clearCustomerOrders,
 		deleteAdminOrder: orderStore.deleteAdminOrder,
-		clearAdminOrders: orderStore.clearAdminOrders
+		clearAdminOrders: orderStore.clearAdminOrders,
+		restoreOrdersByPhoneOrId: orderStore.restoreOrdersByPhoneOrId
 	};
 }
 //#endregion
