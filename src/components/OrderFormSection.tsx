@@ -21,6 +21,7 @@ import { business } from "@/lib/business";
 import { Reveal } from "./Reveal";
 import { useCart } from "@/lib/cart";
 import { useOrders, Order } from "@/lib/orders";
+import { getStoreClosedServer } from "@/lib/db";
 
 interface OrderForm {
   name: string;
@@ -82,10 +83,37 @@ export function OrderFormSection() {
   const [isStoreClosed, setIsStoreClosed] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const closed = localStorage.getItem("uk09_store_closed") === "true";
-      setIsStoreClosed(closed);
-    }
+    // Load store status from server on mount
+    getStoreClosedServer()
+      .then((closed) => {
+        setIsStoreClosed(closed);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("uk09_store_closed", String(closed));
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch store status on mount:", err);
+        if (typeof window !== "undefined") {
+          const closed = localStorage.getItem("uk09_store_closed") === "true";
+          setIsStoreClosed(closed);
+        }
+      });
+
+    // Poll the store status every 5 seconds
+    const interval = setInterval(() => {
+      getStoreClosedServer()
+        .then((closed) => {
+          setIsStoreClosed(closed);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("uk09_store_closed", String(closed));
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to poll store status:", err);
+        });
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, []);
 
   // Listen for admin-initiated cancellation notifications across tabs
@@ -134,9 +162,24 @@ export function OrderFormSection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isStoreClosed) {
-      toast.error("We are currently closed for online orders. Please call us directly!");
-      return;
+    
+    // Check live store status from server immediately on submit
+    try {
+      const closed = await getStoreClosedServer();
+      if (closed) {
+        setIsStoreClosed(true);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("uk09_store_closed", "true");
+        }
+        toast.error("We are currently closed for online orders. Please call us directly!");
+        return;
+      }
+    } catch (err) {
+      console.error("Failed to verify store status before placing order:", err);
+      if (isStoreClosed) {
+        toast.error("We are currently closed for online orders. Please call us directly!");
+        return;
+      }
     }
 
     setTouched({ name: true, phone: true, address: true });
@@ -158,18 +201,27 @@ export function OrderFormSection() {
     // Simulate 1.5s loading animation as requested
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    const newOrder = addOrder({
-      name: form.name.trim(),
-      phone: form.phone.trim(),
-      address: form.address.trim(),
-      items: [...items],
-      total,
-    });
+    try {
+      const newOrder = await addOrder({
+        name: form.name.trim(),
+        phone: form.phone.trim(),
+        address: form.address.trim(),
+        items: [...items],
+        total,
+      });
 
-    setSubmitting(false);
-    setLastPlacedOrder(newOrder);
-    clearCart();
-    toast.success(`Order ${newOrder.id} placed! We will call you shortly.`);
+      setSubmitting(false);
+      setLastPlacedOrder(newOrder);
+      clearCart();
+      toast.success(`Order ${newOrder.id} placed! We will call you shortly.`);
+    } catch (err: any) {
+      setSubmitting(false);
+      setIsStoreClosed(true);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("uk09_store_closed", "true");
+      }
+      toast.error(err?.message || "We are currently closed for online orders. Please call us directly!");
+    }
   };
 
   const handleNewOrder = () => {

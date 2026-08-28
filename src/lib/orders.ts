@@ -132,7 +132,7 @@ class CustomerOrderStore {
   getSnapshot = () => this.orders;
   getServerSnapshot = () => emptyOrders;
 
-  addOrder = (orderData: Omit<Order, "id" | "status" | "createdAt" | "createdAtTimestamp" | "device">): Order => {
+  addOrder = async (orderData: Omit<Order, "id" | "status" | "createdAt" | "createdAtTimestamp" | "device">): Promise<Order> => {
     const now = Date.now();
     
     // Detect device details
@@ -162,13 +162,11 @@ class CustomerOrderStore {
       device,
     };
 
+    // Await server verification first
+    await addOrderServer({ data: { order: newOrder } });
+
     this.orders = [newOrder, ...this.orders];
     this.notify();
-
-    // Call granular server function instead of rewriting the whole server list
-    addOrderServer({ data: { order: newOrder } }).catch((e) =>
-      console.error("Server save failed on addOrder:", e)
-    );
 
     return newOrder;
   };

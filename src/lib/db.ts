@@ -44,8 +44,14 @@ async function kvGet<T>(key: string, defaultValue: T): Promise<T> {
       });
       if (res.ok) {
         const data = await res.json();
-        if (data && data.result) {
-          return JSON.parse(data.result) as T;
+        if (data && data.result !== undefined && data.result !== null) {
+          let val = data.result;
+          if (typeof val === "string") {
+            try {
+              val = JSON.parse(val);
+            } catch {}
+          }
+          return val as T;
         }
       }
     } catch (e) {
@@ -117,6 +123,10 @@ export const setOrdersServer = createServerFn({ method: "POST" })
 export const addOrderServer = createServerFn({ method: "POST" })
   .validator((data: { order: Order }) => data)
   .handler(async ({ data }) => {
+    const storeClosed = await getStoreClosedServer();
+    if (storeClosed) {
+      throw new Error("Store is currently closed for online orders.");
+    }
     const orders = await kvGet<Order[]>("uk09_orders", []);
     const updated = [data.order, ...orders];
     await kvSet("uk09_orders", updated);
@@ -170,12 +180,30 @@ export const setReviewsServer = createServerFn({ method: "POST" })
 
 export const getStoreClosedServer = createServerFn({ method: "GET" })
   .handler(async (): Promise<boolean> => {
-    return await kvGet<boolean>("uk09_store_closed", false);
+    const raw = await kvGet<any>("uk09_store_closed", false);
+    if (typeof raw === "boolean") return raw;
+    if (typeof raw === "string") return raw === "true";
+    if (typeof raw === "object" && raw !== null) {
+      if (typeof raw.data === "boolean") return raw.data;
+      if (typeof raw.closed === "boolean") return raw.closed;
+      if (typeof raw.data === "string") return raw.data === "true";
+    }
+    return false;
   });
 
 export const setStoreClosedServer = createServerFn({ method: "POST" })
-  .validator((data: boolean) => data)
-  .handler(async ({ data: closed }) => {
-    await kvSet("uk09_store_closed", closed);
-    return { success: true };
+  .validator((input: any) => input)
+  .handler(async ({ data }) => {
+    let isClosed = false;
+    if (typeof data === "boolean") {
+      isClosed = data;
+    } else if (typeof data === "string") {
+      isClosed = data === "true";
+    } else if (typeof data === "object" && data !== null) {
+      if (typeof data.data === "boolean") isClosed = data.data;
+      else if (typeof data.closed === "boolean") isClosed = data.closed;
+      else if (typeof data.data === "string") isClosed = data.data === "true";
+    }
+    await kvSet("uk09_store_closed", isClosed);
+    return { success: true, storeClosed: isClosed };
   });
