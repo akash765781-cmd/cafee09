@@ -1,16 +1,16 @@
 import { r as __toESM } from "../_runtime.mjs";
 import { n as require_react, r as require_jsx_runtime, t as QueryClientProvider } from "../_libs/react+tanstack__react-query.mjs";
 import { r as navLinks, t as business } from "./business-DZM1jd34.mjs";
-import { C as Clock, E as ChevronDown, p as Phone, s as ShoppingBag, t as X, v as Menu, y as MapPin } from "../_libs/lucide-react.mjs";
+import { C as Clock, p as Phone, s as ShoppingBag, t as X, v as Menu, y as MapPin } from "../_libs/lucide-react.mjs";
 import { c as HeadContent, d as createRouter, f as Outlet, g as Link, h as createRootRouteWithContext, l as useRouterState, m as createFileRoute, p as lazyRouteComponent, s as Scripts, v as useRouter } from "../_libs/@tanstack/react-router+[...].mjs";
 import { t as Toaster } from "../_libs/sonner.mjs";
 import { t as useCart } from "./cart-Cx1mweoL.mjs";
 import { t as QueryClient } from "../_libs/tanstack__query-core.mjs";
 import { n as objectType, t as enumType } from "../_libs/zod.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-ACh0p0NC.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-CY17IlOT.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
-var styles_default = "/assets/styles-jFlN0YF5.css";
+var styles_default = "/assets/styles-y8CtfKEQ.css";
 function reportLovableError(error, context = {}) {
 	if (typeof window === "undefined") return;
 	window.__lovableEvents?.captureException?.(error, {
@@ -68,26 +68,7 @@ function Navbar() {
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
 					className: "hidden items-center gap-8 md:flex",
-					children: navLinks.map((link) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: link.label === "Order" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "relative group py-2",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-							className: "flex items-center gap-1 text-sm font-medium tracking-wide text-muted-foreground transition-colors hover:text-foreground cursor-pointer",
-							children: ["Order ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { className: "size-3.5 transition-transform group-hover:rotate-180" })]
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "absolute top-full left-0 mt-1 w-48 bg-card border border-border rounded-sm shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 z-50 flex flex-col p-1",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-								to: "/order",
-								search: { tab: "order" },
-								className: "px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground hover:text-primary hover:bg-secondary rounded-sm transition-colors text-left",
-								children: "Place Order"
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-								to: "/order",
-								search: { tab: "track" },
-								className: "px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground hover:text-primary hover:bg-secondary rounded-sm transition-colors text-left",
-								children: "Track & Cancel Order"
-							})]
-						})]
-					}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
+					children: navLinks.map((link) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
 						to: link.to,
 						activeOptions: { exact: link.to === "/" },
 						activeProps: { className: "text-foreground after:scale-x-100" },
@@ -144,28 +125,7 @@ function Navbar() {
 			className: "border-t border-border bg-background md:hidden",
 			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
 				className: "shell flex flex-col py-2",
-				children: navLinks.map((link) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: link.label === "Order" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					className: "border-b border-border py-4",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-						className: "block font-display text-2xl font-extrabold tracking-tight text-foreground/40 mb-2",
-						children: "Order"
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("ul", {
-						className: "pl-4 border-l border-primary/50 my-1 space-y-2",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-							to: "/order",
-							search: { tab: "order" },
-							activeProps: { className: "text-primary" },
-							className: "block py-2 font-display text-xl font-bold tracking-tight text-muted-foreground hover:text-primary",
-							children: "Place Order"
-						}) }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-							to: "/order",
-							search: { tab: "track" },
-							activeProps: { className: "text-primary" },
-							className: "block py-2 font-display text-xl font-bold tracking-tight text-muted-foreground hover:text-primary",
-							children: "Track & Cancel Order"
-						}) })]
-					})]
-				}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
+				children: navLinks.map((link) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
 					to: link.to,
 					activeOptions: { exact: link.to === "/" },
 					activeProps: { className: "text-primary" },

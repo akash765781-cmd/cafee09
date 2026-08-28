@@ -1,6 +1,6 @@
 import { r as __toESM } from "../_runtime.mjs";
 import { n as require_react, r as require_jsx_runtime } from "../_libs/react+tanstack__react-query.mjs";
-import { A as ArrowLeft, C as Clock, D as ChefHat, O as Bike, T as CircleCheckBig, a as Trash2, r as TriangleAlert, s as ShoppingBag, u as Search, w as CircleX } from "../_libs/lucide-react.mjs";
+import { C as Clock, D as Bike, E as ChefHat, T as CircleCheckBig, a as Trash2, k as ArrowLeft, r as TriangleAlert, s as ShoppingBag, u as Search, w as CircleX } from "../_libs/lucide-react.mjs";
 import { g as Link } from "../_libs/@tanstack/react-router+[...].mjs";
 import { t as useOrders } from "./orders-CmW5udys.mjs";
 import { n as toast } from "../_libs/sonner.mjs";
