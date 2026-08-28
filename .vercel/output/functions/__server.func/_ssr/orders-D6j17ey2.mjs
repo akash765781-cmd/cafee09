@@ -1,7 +1,7 @@
 import { r as __toESM } from "../_runtime.mjs";
 import { n as require_react } from "../_libs/react+tanstack__react-query.mjs";
 import { a as setOrdersServer, n as getOrdersServer, t as clearAdminOrdersServer } from "./db-BN3aOrq2.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/orders-zybE3Ddq.js
+//#region node_modules/.nitro/vite/services/ssr/assets/orders-D6j17ey2.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var emptyOrders = [];
 var OrderStore = class {
@@ -14,24 +14,27 @@ var OrderStore = class {
 	listeners = [];
 	constructor() {
 		if (typeof window !== "undefined") {
-			const savedCustomerOrders = localStorage.getItem("uk09_my_orders") || localStorage.getItem("uk09_orders");
-			if (savedCustomerOrders) try {
-				this.customerOrders = JSON.parse(savedCustomerOrders);
-			} catch {}
-			const savedCustDeleted = localStorage.getItem("uk09_customer_deleted_order_ids");
-			if (savedCustDeleted) try {
-				this.customerDeletedOrderIds = JSON.parse(savedCustDeleted);
-			} catch {}
-			const savedCustCleared = localStorage.getItem("uk09_customer_last_cleared");
-			if (savedCustCleared) this.customerLastClearedAt = Number(savedCustCleared) || 0;
-			const savedAdminDeleted = localStorage.getItem("uk09_admin_deleted_order_ids");
-			if (savedAdminDeleted) try {
-				this.adminDeletedOrderIds = JSON.parse(savedAdminDeleted);
-			} catch {}
-			const savedAdminCleared = localStorage.getItem("uk09_admin_last_cleared");
-			if (savedAdminCleared) this.adminLastClearedAt = Number(savedAdminCleared) || 0;
-			this.filterCustomerOrders();
-			this.syncFromServer();
+			setTimeout(() => {
+				const savedCustomerOrders = localStorage.getItem("uk09_my_orders") || localStorage.getItem("uk09_orders");
+				if (savedCustomerOrders) try {
+					this.customerOrders = JSON.parse(savedCustomerOrders);
+				} catch {}
+				const savedCustDeleted = localStorage.getItem("uk09_customer_deleted_order_ids");
+				if (savedCustDeleted) try {
+					this.customerDeletedOrderIds = JSON.parse(savedCustDeleted);
+				} catch {}
+				const savedCustCleared = localStorage.getItem("uk09_customer_last_cleared");
+				if (savedCustCleared) this.customerLastClearedAt = Number(savedCustCleared) || 0;
+				const savedAdminDeleted = localStorage.getItem("uk09_admin_deleted_order_ids");
+				if (savedAdminDeleted) try {
+					this.adminDeletedOrderIds = JSON.parse(savedAdminDeleted);
+				} catch {}
+				const savedAdminCleared = localStorage.getItem("uk09_admin_last_cleared");
+				if (savedAdminCleared) this.adminLastClearedAt = Number(savedAdminCleared) || 0;
+				this.filterCustomerOrders();
+				this.syncFromServer();
+				this.notify();
+			}, 0);
 			setInterval(() => {
 				this.syncFromServer();
 			}, 4e3);

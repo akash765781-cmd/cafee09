@@ -5,8 +5,8 @@ import { O as ArrowRight, f as Plus } from "../_libs/lucide-react.mjs";
 import { n as Reveal } from "./CTASection-Pmk0H9N2.mjs";
 import { g as Link } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as toast } from "../_libs/sonner.mjs";
-import { t as useCart } from "./cart-C9zTcxRu.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/MenuSection-BYiERnkI.js
+import { t as useCart } from "./cart-Cx1mweoL.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/MenuSection-C1Jbb5hM.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var parsePrice = (priceStr) => parseInt(priceStr.replace(/[^0-9]/g, ""), 10);

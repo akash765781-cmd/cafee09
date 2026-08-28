@@ -33,38 +33,44 @@ class OrderStore {
 
   constructor() {
     if (typeof window !== "undefined") {
-      // 1. Load customer local history
-      const savedCustomerOrders = localStorage.getItem("uk09_my_orders") || localStorage.getItem("uk09_orders");
-      if (savedCustomerOrders) {
-        try { this.customerOrders = JSON.parse(savedCustomerOrders); } catch {}
-      }
+      setTimeout(() => {
+        // 1. Load customer local history
+        const savedCustomerOrders = localStorage.getItem("uk09_my_orders") || localStorage.getItem("uk09_orders");
+        if (savedCustomerOrders) {
+          try { this.customerOrders = JSON.parse(savedCustomerOrders); } catch {}
+        }
 
-      const savedCustDeleted = localStorage.getItem("uk09_customer_deleted_order_ids");
-      if (savedCustDeleted) {
-        try { this.customerDeletedOrderIds = JSON.parse(savedCustDeleted); } catch {}
-      }
+        const savedCustDeleted = localStorage.getItem("uk09_customer_deleted_order_ids");
+        if (savedCustDeleted) {
+          try { this.customerDeletedOrderIds = JSON.parse(savedCustDeleted); } catch {}
+        }
 
-      const savedCustCleared = localStorage.getItem("uk09_customer_last_cleared");
-      if (savedCustCleared) {
-        this.customerLastClearedAt = Number(savedCustCleared) || 0;
-      }
+        const savedCustCleared = localStorage.getItem("uk09_customer_last_cleared");
+        if (savedCustCleared) {
+          this.customerLastClearedAt = Number(savedCustCleared) || 0;
+        }
 
-      // Load admin local caches
-      const savedAdminDeleted = localStorage.getItem("uk09_admin_deleted_order_ids");
-      if (savedAdminDeleted) {
-        try { this.adminDeletedOrderIds = JSON.parse(savedAdminDeleted); } catch {}
-      }
+        // Load admin local caches
+        const savedAdminDeleted = localStorage.getItem("uk09_admin_deleted_order_ids");
+        if (savedAdminDeleted) {
+          try { this.adminDeletedOrderIds = JSON.parse(savedAdminDeleted); } catch {}
+        }
 
-      const savedAdminCleared = localStorage.getItem("uk09_admin_last_cleared");
-      if (savedAdminCleared) {
-        this.adminLastClearedAt = Number(savedAdminCleared) || 0;
-      }
+        const savedAdminCleared = localStorage.getItem("uk09_admin_last_cleared");
+        if (savedAdminCleared) {
+          this.adminLastClearedAt = Number(savedAdminCleared) || 0;
+        }
 
-      // Initial filter
-      this.filterCustomerOrders();
+        // Initial filter
+        this.filterCustomerOrders();
 
-      // Fetch fresh data from server immediately & repeatedly
-      this.syncFromServer();
+        // Fetch fresh data from server immediately & repeatedly
+        this.syncFromServer();
+        
+        // Notify after mount loading is complete
+        this.notify();
+      }, 0);
+
       setInterval(() => {
         this.syncFromServer();
       }, 4000);

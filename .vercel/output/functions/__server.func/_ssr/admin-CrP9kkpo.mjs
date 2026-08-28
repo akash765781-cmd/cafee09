@@ -2,9 +2,9 @@ import { r as __toESM } from "../_runtime.mjs";
 import { n as require_react, r as require_jsx_runtime } from "../_libs/react+tanstack__react-query.mjs";
 import { a as Trash2, b as LogOut, c as Shield, d as RefreshCw, h as MessageSquare, i as TrendingUp, l as Settings, n as User, s as ShoppingBag, w as CircleX, x as Lock } from "../_libs/lucide-react.mjs";
 import { i as getStoreClosedServer, o as setReviewsServer, r as getReviewsServer, s as setStoreClosedServer } from "./db-BN3aOrq2.mjs";
-import { t as useOrders } from "./orders-zybE3Ddq.mjs";
+import { t as useOrders } from "./orders-D6j17ey2.mjs";
 import { n as toast } from "../_libs/sonner.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/admin-CxtfwXMZ.js
+//#region node_modules/.nitro/vite/services/ssr/assets/admin-CrP9kkpo.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function AdminPage() {

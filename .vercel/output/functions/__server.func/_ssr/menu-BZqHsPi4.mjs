@@ -1,8 +1,8 @@
 import { r as require_jsx_runtime } from "../_libs/react+tanstack__react-query.mjs";
 import { t as PageHeader } from "./PageHeader-DUEAwHLy.mjs";
 import { t as CTASection } from "./CTASection-Pmk0H9N2.mjs";
-import { t as MenuSection } from "./MenuSection-BYiERnkI.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/menu-BeX1qPSI.js
+import { t as MenuSection } from "./MenuSection-C1Jbb5hM.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/menu-BZqHsPi4.js
 var import_jsx_runtime = require_jsx_runtime();
 function MenuPage() {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [

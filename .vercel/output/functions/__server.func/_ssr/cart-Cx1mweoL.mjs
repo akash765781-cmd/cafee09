@@ -1,18 +1,19 @@
 import { r as __toESM } from "../_runtime.mjs";
 import { n as require_react } from "../_libs/react+tanstack__react-query.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/cart-C9zTcxRu.js
+//#region node_modules/.nitro/vite/services/ssr/assets/cart-Cx1mweoL.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var emptyArray = [];
 var CartStore = class {
 	items = [];
 	listeners = [];
 	constructor() {
-		if (typeof window !== "undefined") {
+		if (typeof window !== "undefined") setTimeout(() => {
 			const saved = localStorage.getItem("uk09_cart");
 			if (saved) try {
 				this.items = JSON.parse(saved);
+				this.notify();
 			} catch {}
-		}
+		}, 0);
 	}
 	save() {
 		if (typeof window !== "undefined") localStorage.setItem("uk09_cart", JSON.stringify(this.items));

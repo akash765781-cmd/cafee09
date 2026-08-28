@@ -4,9 +4,9 @@ import { r as navLinks, t as business } from "./business-DZM1jd34.mjs";
 import { C as Clock, p as Phone, s as ShoppingBag, t as X, v as Menu, y as MapPin } from "../_libs/lucide-react.mjs";
 import { _ as useRouter, c as HeadContent, d as createRouter, f as Outlet, g as Link, h as createRootRouteWithContext, l as useRouterState, m as createFileRoute, p as lazyRouteComponent, s as Scripts } from "../_libs/@tanstack/react-router+[...].mjs";
 import { t as Toaster } from "../_libs/sonner.mjs";
-import { t as useCart } from "./cart-C9zTcxRu.mjs";
+import { t as useCart } from "./cart-Cx1mweoL.mjs";
 import { t as QueryClient } from "../_libs/tanstack__query-core.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-70muPTna.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-ALYT7YM9.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var styles_default = "/assets/styles-B98xe-kl.css";
@@ -442,7 +442,7 @@ function RootComponent() {
 		]
 	});
 }
-var $$splitComponentImporter$7 = () => import("./routes-Cfybn1NG.mjs");
+var $$splitComponentImporter$7 = () => import("./routes-B8JGobgI.mjs");
 var title$7 = "UK 09 — Restaurant in Bathinda, Punjab";
 var description$7 = "UK 09 is a dine-in restaurant on Green City Road, Bathinda. Good food, a cozy atmosphere and friendly service, open daily 10 AM–11 PM.";
 var jsonLd = {
@@ -539,7 +539,7 @@ var Route$6 = createFileRoute("/about")({
 	] }),
 	component: lazyRouteComponent($$splitComponentImporter$6, "component")
 });
-var $$splitComponentImporter$5 = () => import("./admin-CxtfwXMZ.mjs");
+var $$splitComponentImporter$5 = () => import("./admin-CrP9kkpo.mjs");
 var title$5 = "Admin Panel — UK 09 Restaurant, Bathinda";
 var description$5 = "Secured dashboard for administrative management of UK 09.";
 var Route$5 = createFileRoute("/admin")({
@@ -585,7 +585,7 @@ var Route$4 = createFileRoute("/location")({
 	] }),
 	component: lazyRouteComponent($$splitComponentImporter$4, "component")
 });
-var $$splitComponentImporter$3 = () => import("./menu-BeX1qPSI.mjs");
+var $$splitComponentImporter$3 = () => import("./menu-BZqHsPi4.mjs");
 var title$3 = "Menu — UK 09 Restaurant, Bathinda";
 var description$3 = "Browse the menu at UK 09, a dine-in restaurant in Bathinda, Punjab. Categories and prices are published directly from the restaurant's own menu.";
 var Route$3 = createFileRoute("/menu")({
@@ -614,7 +614,7 @@ var Route$3 = createFileRoute("/menu")({
 	] }),
 	component: lazyRouteComponent($$splitComponentImporter$3, "component")
 });
-var $$splitComponentImporter$2 = () => import("./my-orders-e_zXtMCk.mjs");
+var $$splitComponentImporter$2 = () => import("./my-orders-DcqPYrB_.mjs");
 var title$2 = "My Orders — UK 09 Restaurant, Bathinda";
 var description$2 = "View and track all your previous and active orders placed at UK 09 Restaurant, Bathinda.";
 var Route$2 = createFileRoute("/my-orders")({
@@ -643,7 +643,7 @@ var Route$2 = createFileRoute("/my-orders")({
 	] }),
 	component: lazyRouteComponent($$splitComponentImporter$2, "component")
 });
-var $$splitComponentImporter$1 = () => import("./order-D33MvbbS.mjs");
+var $$splitComponentImporter$1 = () => import("./order-D4yLjWk3.mjs");
 var title$1 = "Order Online — UK 09 Restaurant, Bathinda";
 var description$1 = "Place and track your order online at UK 09. Fresh food delivered hot to your door in Bathinda.";
 var Route$1 = createFileRoute("/order")({
