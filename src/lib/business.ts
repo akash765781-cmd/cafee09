@@ -35,8 +35,6 @@ export const weekdays = [
 export const navLinks = [
   { label: "Home", to: "/" },
   { label: "Menu", to: "/menu" },
-  { label: "Order", to: "/order" },
-  { label: "My Orders", to: "/my-orders" },
   { label: "About", to: "/about" },
   { label: "Reviews", to: "/reviews" },
   { label: "Location", to: "/location" },
