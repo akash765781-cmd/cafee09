@@ -5,14 +5,12 @@ import { Wordmark } from "./Wordmark";
 import { business, navLinks } from "@/lib/business";
 import { useCart } from "@/lib/cart";
 
-import { getStoreClosedServer } from "@/lib/db";
 
 export function Navbar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const overHero = pathname === "/";
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const [isStoreClosed, setIsStoreClosed] = useState(false);
   const { itemCount } = useCart();
 
   useEffect(() => {
@@ -20,20 +18,6 @@ export function Navbar() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    getStoreClosedServer()
-      .then((closed) => setIsStoreClosed(closed))
-      .catch(() => {});
-
-    const interval = setInterval(() => {
-      getStoreClosedServer()
-        .then((closed) => setIsStoreClosed(closed))
-        .catch(() => {});
-    }, 5000);
-
-    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -48,16 +32,11 @@ export function Navbar() {
         solid ? "border-b border-border bg-background/92 backdrop-blur-sm" : "bg-transparent"
       }`}
     >
-      {isStoreClosed && (
-        <div className="bg-destructive text-destructive-foreground text-[11px] font-bold uppercase tracking-wider text-center py-1.5 px-4 flex items-center justify-center gap-2 shadow-sm">
-          <span>Notice: Online ordering is currently CLOSED. Please call us directly!</span>
-        </div>
-      )}
       <nav aria-label="Primary" className="shell flex h-16 items-center justify-between md:h-20">
         <Link to="/" className="text-xl md:text-2xl" aria-label="UK 09 — home">
           <Wordmark />
         </Link>
-
+ 
         <ul className="hidden items-center gap-8 md:flex">
           {navLinks.map((link) => (
             <li key={link.to}>

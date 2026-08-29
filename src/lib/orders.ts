@@ -6,7 +6,8 @@ import {
   addOrderServer,
   forceAddOrderServer,
   updateOrderStatusServer,
-  deleteOrderServer
+  deleteOrderServer,
+  setStoreClosedServer
 } from "./db";
 
 export type OrderStatus = "Received" | "Preparing" | "Out for Delivery" | "Delivered" | "Cancelled";
@@ -25,13 +26,16 @@ export type Order = {
 };
 
 const emptyOrders: Order[] = [];
+const emptyServerSnapshot = { orders: emptyOrders, storeClosed: false };
 
 // ==========================================
 // CUSTOMER ORDER STORE (LOCAL STORAGE + SYNC)
 // ==========================================
 class CustomerOrderStore {
   orders: Order[] = [];
+  storeClosed: boolean = false;
   listeners: (() => void)[] = [];
+  state = { orders: [] as Order[], storeClosed: false };
 
   constructor() {
     if (typeof window !== "undefined") {
@@ -52,6 +56,7 @@ class CustomerOrderStore {
           localStorage.setItem("uk09_my_orders", oldOrders);
         }
       }
+      this.state = { orders: this.orders, storeClosed: this.storeClosed };
 
       // Fresh sync and regular polling
       this.syncFromServer();
@@ -66,7 +71,7 @@ class CustomerOrderStore {
       const syncState = await getOrdersServer();
       if (!syncState) return;
 
-      const { orders: serverOrders, deletedOrderIds, lastClearedAt } = syncState;
+      const { orders: serverOrders, deletedOrderIds, lastClearedAt, storeClosed } = syncState;
 
       // If any of our local orders are not present on the server (e.g. server database wiped),
       // we immediately re-upload them to the server so that the admin can see them and status updates work!
@@ -93,18 +98,28 @@ class CustomerOrderStore {
       }
 
       let hasStateChanges = false;
+      if (typeof storeClosed === "boolean" && this.storeClosed !== storeClosed) {
+        this.storeClosed = storeClosed;
+        hasStateChanges = true;
+      }
+
+      let ordersChanged = false;
       const updatedOrders = this.orders.map((o) => {
         if (!o) return o;
         const matchingServerOrder = (serverOrders || []).find((so) => so && so.id === o.id);
         if (matchingServerOrder && matchingServerOrder.status !== o.status) {
-          hasStateChanges = true;
+          ordersChanged = true;
           return { ...o, status: matchingServerOrder.status };
         }
         return o;
       });
 
-      if (hasStateChanges) {
+      if (ordersChanged) {
         this.orders = updatedOrders;
+        hasStateChanges = true;
+      }
+
+      if (hasStateChanges) {
         this.notify();
       }
     } catch (e) {
@@ -120,6 +135,7 @@ class CustomerOrderStore {
 
   notify() {
     this.save();
+    this.state = { orders: this.orders, storeClosed: this.storeClosed };
     this.listeners.forEach((l) => l());
   }
 
@@ -130,8 +146,8 @@ class CustomerOrderStore {
     };
   };
 
-  getSnapshot = () => this.orders;
-  getServerSnapshot = () => emptyOrders;
+  getSnapshot = () => this.state;
+  getServerSnapshot = () => emptyServerSnapshot;
 
   addOrder = async (orderData: Omit<Order, "id" | "status" | "createdAt" | "createdAtTimestamp" | "device">): Promise<Order> => {
     const now = Date.now();
@@ -210,14 +226,15 @@ class CustomerOrderStore {
 export const orderStore = new CustomerOrderStore();
 
 export function useOrders() {
-  const orders = useSyncExternalStore(
+  const state = useSyncExternalStore(
     orderStore.subscribe,
     orderStore.getSnapshot,
     orderStore.getServerSnapshot
   );
 
   return {
-    orders,
+    orders: state.orders,
+    storeClosed: state.storeClosed,
     addOrder: orderStore.addOrder,
     cancelOrder: orderStore.cancelOrder,
     updateOrderStatus: orderStore.updateOrderStatus,
@@ -233,7 +250,9 @@ class AdminOrderStore {
   orders: Order[] = [];
   deletedOrderIds: string[] = [];
   lastClearedAt: number = 0;
+  storeClosed: boolean = false;
   listeners: (() => void)[] = [];
+  state = { orders: [] as Order[], storeClosed: false };
 
   constructor() {
     if (typeof window !== "undefined") {
@@ -254,6 +273,7 @@ class AdminOrderStore {
       if (savedCleared) {
         this.lastClearedAt = Number(savedCleared) || 0;
       }
+      this.state = { orders: this.orders, storeClosed: this.storeClosed };
 
       this.syncFromServer();
       setInterval(() => {
@@ -267,20 +287,30 @@ class AdminOrderStore {
       const syncState = await getOrdersServer();
       if (!syncState) return;
 
-      const { orders: serverOrders, deletedOrderIds: serverDeleted, lastClearedAt: serverCleared } = syncState;
+      const { orders: serverOrders, deletedOrderIds: serverDeleted, lastClearedAt: serverCleared, storeClosed } = syncState;
+
+      let hasStateChanges = false;
+      if (typeof storeClosed === "boolean" && this.storeClosed !== storeClosed) {
+        this.storeClosed = storeClosed;
+        hasStateChanges = true;
+      }
 
       // Merge and update deletedOrderIds list locally
       const updatedDeleted = Array.from(new Set([...this.deletedOrderIds, ...(serverDeleted || [])]));
-      this.deletedOrderIds = updatedDeleted;
-      if (typeof window !== "undefined") {
-        localStorage.setItem("uk09_admin_deleted_order_ids", JSON.stringify(updatedDeleted));
+      if (JSON.stringify(this.deletedOrderIds) !== JSON.stringify(updatedDeleted)) {
+        this.deletedOrderIds = updatedDeleted;
+        if (typeof window !== "undefined") {
+          localStorage.setItem("uk09_admin_deleted_order_ids", JSON.stringify(updatedDeleted));
+        }
       }
 
       // Merge and update lastClearedAt timestamp locally (always keep the latest clearing event)
       const updatedCleared = Math.max(this.lastClearedAt, serverCleared || 0);
-      this.lastClearedAt = updatedCleared;
-      if (typeof window !== "undefined") {
-        localStorage.setItem("uk09_admin_last_cleared_at", String(updatedCleared));
+      if (this.lastClearedAt !== updatedCleared) {
+        this.lastClearedAt = updatedCleared;
+        if (typeof window !== "undefined") {
+          localStorage.setItem("uk09_admin_last_cleared_at", String(updatedCleared));
+        }
       }
 
       // Merge incoming server orders into local orders (protects against serverless memory resets)
@@ -317,6 +347,10 @@ class AdminOrderStore {
         if (typeof window !== "undefined") {
           localStorage.setItem("uk09_admin_orders", newStr);
         }
+        hasStateChanges = true;
+      }
+
+      if (hasStateChanges) {
         this.notify();
       }
     } catch (e) {
@@ -325,6 +359,7 @@ class AdminOrderStore {
   }
 
   notify() {
+    this.state = { orders: this.orders, storeClosed: this.storeClosed };
     this.listeners.forEach((l) => l());
   }
 
@@ -335,8 +370,8 @@ class AdminOrderStore {
     };
   };
 
-  getSnapshot = () => this.orders;
-  getServerSnapshot = () => emptyOrders;
+  getSnapshot = () => this.state;
+  getServerSnapshot = () => emptyServerSnapshot;
 
   updateOrderStatus = (id: string, status: OrderStatus) => {
     this.orders = this.orders.map((o) => (o.id === id ? { ...o, status } : o));
@@ -393,19 +428,26 @@ class AdminOrderStore {
       console.error("Admin clear all orders failed:", e)
     );
   };
+  setStoreClosed = async (closed: boolean) => {
+    this.storeClosed = closed;
+    this.notify();
+    await setStoreClosedServer({ data: closed });
+  };
 }
 
 export const adminOrderStore = new AdminOrderStore();
 
 export function useAdminOrders() {
-  const orders = useSyncExternalStore(
+  const state = useSyncExternalStore(
     adminOrderStore.subscribe,
     adminOrderStore.getSnapshot,
     adminOrderStore.getServerSnapshot
   );
 
   return {
-    orders,
+    orders: state.orders,
+    storeClosed: state.storeClosed,
+    setStoreClosed: adminOrderStore.setStoreClosed,
     updateOrderStatus: adminOrderStore.updateOrderStatus,
     cancelOrder: adminOrderStore.cancelOrder,
     deleteOrder: adminOrderStore.deleteOrder,

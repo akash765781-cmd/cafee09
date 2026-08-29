@@ -40,7 +40,7 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminPage() {
-  const { orders, updateOrderStatus, deleteOrder, clearAllOrders, cancelOrder } = useAdminOrders();
+  const { orders, updateOrderStatus, deleteOrder, clearAllOrders, cancelOrder, storeClosed, setStoreClosed } = useAdminOrders();
 
   // Authentication State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -51,8 +51,6 @@ function AdminPage() {
   // Reviews list read from localStorage
   const [reviews, setReviews] = useState<Review[]>([]);
 
-  // Secret settings
-  const [isStoreClosed, setIsStoreClosed] = useState(false);
   const [simulatedVisitors, setSimulatedVisitors] = useState(0);
 
   // Load state on mount
@@ -78,11 +76,7 @@ function AdminPage() {
         }
       });
 
-      // Check store status from server
-      getStoreClosedServer().then((closed) => {
-        setIsStoreClosed(closed);
-        localStorage.setItem("uk09_store_closed", String(closed));
-      });
+
 
       // Sim visitor count
       setSimulatedVisitors(Math.floor(124 + Math.random() * 800));
@@ -108,23 +102,7 @@ function AdminPage() {
     toast.info("Logged out successfully.");
   };
 
-  const toggleStoreStatus = async () => {
-    const nextState = !isStoreClosed;
-    setIsStoreClosed(nextState);
-    localStorage.setItem("uk09_store_closed", String(nextState));
-    
-    try {
-      await setStoreClosedServer({ data: nextState });
-      toast.success(
-        nextState
-          ? "Store status set to CLOSED. Customers will see a warning."
-          : "Store status set to OPEN."
-      );
-    } catch (e) {
-      console.error("Failed to sync store status to server:", e);
-      toast.error("Failed to sync status to server.");
-    }
-  };
+
 
   const handleDeleteReview = async (index: number) => {
     const updated = reviews.filter((_, idx) => idx !== index);
@@ -524,38 +502,39 @@ function AdminPage() {
               <h2 className="font-display text-lg font-bold uppercase">Secret & System Settings</h2>
             </div>
 
-            {/* Store Closed Mode */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
+            {/* Store Operations Status Control */}
+            <div className="space-y-4">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
+                Store Operations Status
+              </h3>
+              <div className="flex items-center justify-between p-3.5 rounded-sm border bg-background border-border">
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
-                    Store Operation State
-                  </h3>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    Toggle to disable online checkouts.
+                  <p className={`text-xs font-bold uppercase tracking-wider ${storeClosed ? "text-destructive" : "text-emerald-500"}`}>
+                    Store is {storeClosed ? "CLOSED" : "OPEN"}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">
+                    {storeClosed 
+                      ? "Ordering is disabled for all users." 
+                      : "Ordering is enabled for all users."}
                   </p>
                 </div>
-                <span
-                  className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-sm ${
-                    isStoreClosed
-                      ? "bg-destructive/10 text-destructive border border-destructive/20"
-                      : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                
+                <button
+                  onClick={() => {
+                    const nextState = !storeClosed;
+                    if (confirm(`Are you sure you want to ${nextState ? "CLOSE" : "OPEN"} store operations?`)) {
+                      setStoreClosed(nextState);
+                    }
+                  }}
+                  className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-sm transition-colors border ${
+                    storeClosed
+                      ? "bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500"
+                      : "bg-destructive hover:bg-destructive/90 text-white border-destructive"
                   }`}
                 >
-                  {isStoreClosed ? "Closed" : "Open"}
-                </span>
+                  {storeClosed ? "Open Store" : "Close Store"}
+                </button>
               </div>
-
-              <button
-                onClick={toggleStoreStatus}
-                className={`w-full flex items-center justify-center gap-2 min-h-11 font-bold text-xs uppercase tracking-wider rounded-sm transition-colors border ${
-                  isStoreClosed
-                    ? "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 border-emerald-500/30 hover:text-white"
-                    : "bg-destructive/10 text-destructive hover:bg-destructive border-destructive/30 hover:text-white"
-                }`}
-              >
-                {isStoreClosed ? "Open Store Operations" : "Close Store Operations"}
-              </button>
             </div>
 
             {/* Simulators & Logs */}

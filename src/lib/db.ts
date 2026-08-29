@@ -14,6 +14,7 @@ export interface SyncState {
   orders: Order[];
   deletedOrderIds: string[];
   lastClearedAt: number;
+  storeClosed?: boolean;
 }
 
 // In-memory fallback
@@ -112,7 +113,8 @@ export const getOrdersServer = createServerFn({ method: "GET" })
     const orders = await kvGet<Order[]>("uk09_orders", []);
     const deletedOrderIds = await kvGet<string[]>("uk09_deleted_order_ids", []);
     const lastClearedAt = await kvGet<number>("uk09_last_cleared_at", 0);
-    return { orders, deletedOrderIds, lastClearedAt };
+    const storeClosed = await isStoreClosedFromKV();
+    return { orders, deletedOrderIds, lastClearedAt, storeClosed };
   });
 
 export const setOrdersServer = createServerFn({ method: "POST" })
@@ -131,10 +133,8 @@ export const setOrdersServer = createServerFn({ method: "POST" })
 export const addOrderServer = createServerFn({ method: "POST" })
   .validator((data: { order: Order }) => data)
   .handler(async ({ data }) => {
-    // Check store closed directly from KV (NOT via another server function)
-    const storeClosed = await isStoreClosedFromKV();
-    if (storeClosed) {
-      throw new Error("Store is currently closed for online orders.");
+    if (await isStoreClosedFromKV()) {
+      throw new Error("Store is currently closed. Orders cannot be placed.");
     }
     const orders = await kvGet<Order[]>("uk09_orders", []);
     const updated = [data.order, ...orders];
@@ -197,7 +197,7 @@ export const setReviewsServer = createServerFn({ method: "POST" })
     return { success: true };
   });
 
-export const getStoreClosedServer = createServerFn({ method: "GET" })
+export const getStoreClosedServer = createServerFn({ method: "POST" })
   .handler(async (): Promise<boolean> => {
     return await isStoreClosedFromKV();
   });

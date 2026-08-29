@@ -69,7 +69,7 @@ const statusSteps = [
 
 export function OrderFormSection() {
   const { items, total, removeItem, updateQuantity, clearCart } = useCart();
-  const { orders, addOrder, cancelOrder, deleteOrder, clearAllOrders } = useOrders();
+  const { orders, addOrder, cancelOrder, deleteOrder, clearAllOrders, storeClosed } = useOrders();
 
   const [activeTab, setActiveTab] = useState<"order" | "track">("order");
   const [form, setForm] = useState<OrderForm>({ name: "", phone: "", address: "" });
@@ -80,41 +80,35 @@ export function OrderFormSection() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [cancellingId, setCancellingId] = useState<string | null>(null);
-  const [isStoreClosed, setIsStoreClosed] = useState(false);
+
+  const [trackHiddenIds, setTrackHiddenIds] = useState<string[]>([]);
 
   useEffect(() => {
-    // Load store status from server on mount
-    getStoreClosedServer()
-      .then((closed) => {
-        setIsStoreClosed(closed);
-        if (typeof window !== "undefined") {
-          localStorage.setItem("uk09_store_closed", String(closed));
-        }
-      })
-      .catch((err) => {
-        console.error("Failed to fetch store status on mount:", err);
-        if (typeof window !== "undefined") {
-          const closed = localStorage.getItem("uk09_store_closed") === "true";
-          setIsStoreClosed(closed);
-        }
-      });
-
-    // Poll the store status every 5 seconds
-    const interval = setInterval(() => {
-      getStoreClosedServer()
-        .then((closed) => {
-          setIsStoreClosed(closed);
-          if (typeof window !== "undefined") {
-            localStorage.setItem("uk09_store_closed", String(closed));
-          }
-        })
-        .catch((err) => {
-          console.error("Failed to poll store status:", err);
-        });
-    }, 5000);
-
-    return () => clearInterval(interval);
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("uk09_track_hidden_ids");
+      if (saved) {
+        try {
+          setTrackHiddenIds(JSON.parse(saved));
+        } catch {}
+      }
+    }
   }, []);
+
+  const hideOrderFromTrack = (id: string) => {
+    const updated = [...trackHiddenIds, id];
+    setTrackHiddenIds(updated);
+    localStorage.setItem("uk09_track_hidden_ids", JSON.stringify(updated));
+  };
+
+  const hideAllOrdersFromTrack = () => {
+    const updated = Array.from(new Set([...trackHiddenIds, ...orders.map((o) => o.id)]));
+    setTrackHiddenIds(updated);
+    localStorage.setItem("uk09_track_hidden_ids", JSON.stringify(updated));
+  };
+
+  const visibleOrdersCount = orders.filter((o) => !trackHiddenIds.includes(o.id)).length;
+
+
 
   // Listen for admin-initiated cancellation notifications across tabs
   useEffect(() => {
@@ -163,24 +157,12 @@ export function OrderFormSection() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Check live store status from server immediately on submit
-    try {
-      const closed = await getStoreClosedServer();
-      if (closed) {
-        setIsStoreClosed(true);
-        if (typeof window !== "undefined") {
-          localStorage.setItem("uk09_store_closed", "true");
-        }
-        toast.error("We are currently closed for online orders. Please call us directly!");
-        return;
-      }
-    } catch (err) {
-      console.error("Failed to verify store status before placing order:", err);
-      if (isStoreClosed) {
-        toast.error("We are currently closed for online orders. Please call us directly!");
-        return;
-      }
+    if (storeClosed) {
+      toast.error("Store is currently closed. We are not accepting orders.");
+      return;
     }
+    
+
 
     setTouched({ name: true, phone: true, address: true });
     const newErrors = validate(form);
@@ -216,11 +198,7 @@ export function OrderFormSection() {
       toast.success(`Order ${newOrder.id} placed! We will call you shortly.`);
     } catch (err: any) {
       setSubmitting(false);
-      setIsStoreClosed(true);
-      if (typeof window !== "undefined") {
-        localStorage.setItem("uk09_store_closed", "true");
-      }
-      toast.error(err?.message || "We are currently closed for online orders. Please call us directly!");
+      toast.error(err?.message || "We are currently unable to place your order. Please call us directly!");
     }
   };
 
@@ -240,9 +218,10 @@ export function OrderFormSection() {
 
   const filteredOrders = orders.filter(
     (o) =>
-      o.id.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
-      o.phone.includes(searchQuery.trim()) ||
-      o.name.toLowerCase().includes(searchQuery.toLowerCase().trim())
+      !trackHiddenIds.includes(o.id) &&
+      (o.id.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
+        o.phone.includes(searchQuery.trim()) ||
+        o.name.toLowerCase().includes(searchQuery.toLowerCase().trim()))
   );
 
   return (
@@ -271,7 +250,7 @@ export function OrderFormSection() {
               }`}
             >
               <Clock className="size-4" />
-              Track & Cancel Order {orders.length > 0 && `(${orders.length})`}
+              Track & Cancel Order {visibleOrdersCount > 0 && `(${visibleOrdersCount})`}
             </button>
           </div>
         </div>
@@ -390,6 +369,19 @@ export function OrderFormSection() {
                 {/* Right: Cart Items & Delivery Form */}
                 <div className="lg:col-span-7">
                   <Reveal>
+                    {storeClosed && (
+                      <div className="mb-6 rounded-sm border border-destructive/30 bg-destructive/10 p-4 flex items-start gap-3">
+                        <AlertTriangle className="size-5 text-destructive shrink-0 mt-0.5" />
+                        <div className="space-y-1">
+                          <p className="text-xs font-bold uppercase tracking-wider text-destructive">
+                            Store Operations Closed
+                          </p>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            We are not accepting orders right now. The admin has temporarily closed store operations.
+                          </p>
+                        </div>
+                      </div>
+                    )}
                     {items.length === 0 ? (
                       <div className="rounded-sm border border-border bg-card p-12 text-center flex flex-col items-center justify-center">
                         <div className="size-16 rounded-full bg-secondary flex items-center justify-center mb-4">
@@ -468,12 +460,7 @@ export function OrderFormSection() {
 
                         {/* Customer Form */}
                         <div className="pt-4 border-t border-border space-y-4">
-                          {isStoreClosed && (
-                            <div className="p-4 rounded-sm border border-destructive bg-destructive/10 text-destructive text-xs flex items-center gap-2 mb-2">
-                              <AlertTriangle className="size-4 shrink-0" />
-                              <span>Notice: We are currently closed and not accepting online orders at this time. Please contact us directly by phone or try again later.</span>
-                            </div>
-                          )}
+
 
                           <div className="flex items-center gap-2 mb-1">
                             <User className="size-4 text-primary" />
@@ -565,7 +552,7 @@ export function OrderFormSection() {
                           {/* Submit */}
                           <button
                             type="submit"
-                            disabled={submitting || isStoreClosed}
+                            disabled={submitting || storeClosed}
                             className="w-full flex items-center justify-center gap-2.5 min-h-13 bg-primary hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed text-primary-foreground font-bold px-8 text-xs uppercase tracking-[0.18em] transition-colors rounded-sm"
                           >
                             {submitting ? (
@@ -573,10 +560,15 @@ export function OrderFormSection() {
                                 <Loader2 className="size-4 animate-spin" />
                                 Processing Order…
                               </>
+                            ) : storeClosed ? (
+                              <>
+                                <XCircle className="size-4 animate-pulse" />
+                                Store Closed (Not Accepting Orders)
+                              </>
                             ) : (
                               <>
                                 <ShoppingBag className="size-4" />
-                                {isStoreClosed ? "Closed for Orders" : `Place Order (₹${total})`}
+                                Place Order (₹{total})
                               </>
                             )}
                           </button>
@@ -616,11 +608,11 @@ export function OrderFormSection() {
                   />
                 </div>
 
-                {orders.length > 0 && (
+                {visibleOrdersCount > 0 && (
                   <button
                     onClick={() => {
                       if (confirm("Are you sure you want to clear all your order history?")) {
-                        clearAllOrders();
+                        hideAllOrdersFromTrack();
                         toast.success("Order history cleared.");
                       }
                     }}
@@ -701,7 +693,7 @@ export function OrderFormSection() {
                             <button
                               onClick={() => {
                                 if (confirm(`Remove order ${order.id} from your view?`)) {
-                                  deleteOrder(order.id);
+                                  hideOrderFromTrack(order.id);
                                   toast.success("Order record cleared from your device.");
                                 }
                               }}
