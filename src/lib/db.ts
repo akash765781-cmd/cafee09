@@ -60,6 +60,23 @@ async function kvGet<T>(key: string, defaultValue: T): Promise<T> {
     }
   }
   
+  // Fallback to keyvalue.immanuel.co for persistent storeClosed status if Vercel KV is not connected
+  if (key === "uk09_store_closed") {
+    try {
+      const res = await fetch("https://keyvalue.immanuel.co/api/KeyVal/GetValue/1xv3tt2d/uk09_store_closed");
+      if (res.ok) {
+        const text = await res.text();
+        if (text) {
+          const cleanText = text.replace(/"/g, "").trim();
+          inMemoryDb.storeClosed = cleanText === "true";
+          return inMemoryDb.storeClosed as any;
+        }
+      }
+    } catch (e) {
+      console.error(`KVGET Fallback error for ${key}:`, e);
+    }
+  }
+  
   // Fallback to in-memory
   if (key === "uk09_orders") return inMemoryDb.orders as any;
   if (key === "uk09_reviews") return inMemoryDb.reviews as any;
@@ -95,6 +112,14 @@ async function kvSet(key: string, value: any) {
       }
     } catch (e) {
       console.error(`KV SET error for key ${key}:`, e);
+    }
+  } else if (key === "uk09_store_closed") {
+    try {
+      await fetch(`https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/1xv3tt2d/uk09_store_closed/${value}`, {
+        method: "POST"
+      });
+    } catch (e) {
+      console.error(`KVSET Fallback error for ${key}:`, e);
     }
   }
 }
