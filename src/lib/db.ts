@@ -34,6 +34,59 @@ function getEnv(key: string): string {
   return "";
 }
 
+
+// Base64URL Helpers to bypass keyvalue.immanuel.co character constraints
+function toBase64URL(str: string): string {
+  if (typeof Buffer !== "undefined") {
+    return Buffer.from(str, "utf-8")
+      .toString("base64")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+  }
+  const b64 = btoa(unescape(encodeURIComponent(str)));
+  return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function fromBase64URL(b64url: string): string {
+  let b64 = b64url.replace(/-/g, "+").replace(/_/g, "/");
+  while (b64.length % 4) {
+    b64 += "=";
+  }
+  if (typeof Buffer !== "undefined") {
+    return Buffer.from(b64, "base64").toString("utf-8");
+  }
+  return decodeURIComponent(escape(atob(b64)));
+}
+
+async function immanuelGet(key: string): Promise<string | null> {
+  try {
+    const res = await fetch(`https://keyvalue.immanuel.co/api/KeyVal/GetValue/1xv3tt2d/${key}`);
+    if (res.ok) {
+      const text = await res.text();
+      if (text) {
+        return text.replace(/^"|"$/g, "").trim();
+      }
+    }
+  } catch (e) {
+    console.error(`Immanuel GET error for key ${key}:`, e);
+  }
+  return null;
+}
+
+async function immanuelSet(key: string, value: string): Promise<boolean> {
+  try {
+    const encodedValue = encodeURIComponent(value);
+    const res = await fetch(`https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/1xv3tt2d/${key}/${encodedValue}`, {
+      method: "POST"
+    });
+    return res.ok;
+  } catch (e) {
+    console.error(`Immanuel SET error for key ${key}:`, e);
+  }
+  return false;
+}
+
 async function kvGet<T>(key: string, defaultValue: T): Promise<T> {
   const KV_URL = getEnv("KV_REST_API_URL");
   const KV_TOKEN = getEnv("KV_REST_API_TOKEN");
@@ -60,24 +113,70 @@ async function kvGet<T>(key: string, defaultValue: T): Promise<T> {
     }
   }
   
-  // Fallback to keyvalue.immanuel.co for persistent storeClosed status if Vercel KV is not connected
-  if (key === "uk09_store_closed") {
-    try {
-      const res = await fetch("https://keyvalue.immanuel.co/api/KeyVal/GetValue/1xv3tt2d/uk09_store_closed");
-      if (res.ok) {
-        const text = await res.text();
-        if (text) {
-          const cleanText = text.replace(/"/g, "").trim();
-          inMemoryDb.storeClosed = cleanText === "true";
-          return inMemoryDb.storeClosed as any;
+  // Persistent fallback to keyvalue.immanuel.co when Vercel KV is not connected
+  try {
+    if (key === "uk09_store_closed") {
+      const val = await immanuelGet("uk09_store_closed");
+      if (val !== null) {
+        inMemoryDb.storeClosed = val === "true";
+      }
+      return inMemoryDb.storeClosed as any;
+    }
+    
+    if (key === "uk09_last_cleared_at") {
+      const val = await immanuelGet("uk09_last_cleared_at");
+      if (val !== null) {
+        inMemoryDb.lastClearedAt = Number(val) || 0;
+      }
+      return inMemoryDb.lastClearedAt as any;
+    }
+
+    if (key === "uk09_deleted_order_ids") {
+      const val = await immanuelGet("uk09_deleted_order_ids");
+      if (val !== null) {
+        inMemoryDb.deletedOrderIds = val ? val.split(",") : [];
+      }
+      return inMemoryDb.deletedOrderIds as any;
+    }
+
+    if (key === "uk09_reviews") {
+      const val = await immanuelGet("uk09_reviews_b64");
+      if (val) {
+        try {
+          inMemoryDb.reviews = JSON.parse(fromBase64URL(val));
+        } catch (e) {
+          console.error("Failed to parse fallback reviews:", e);
         }
       }
-    } catch (e) {
-      console.error(`KVGET Fallback error for ${key}:`, e);
+      return inMemoryDb.reviews as any;
     }
+
+    if (key === "uk09_orders") {
+      const idsStr = await immanuelGet("uk09_order_ids");
+      if (!idsStr) {
+        return [] as any;
+      }
+      const ids = idsStr.split(",").filter(Boolean);
+      const orderPromises = ids.map(async (id) => {
+        const b64 = await immanuelGet(`uk09_order_${id}`);
+        if (!b64) return null;
+        try {
+          const decoded = fromBase64URL(b64);
+          return JSON.parse(decoded) as Order;
+        } catch (e) {
+          console.error(`Failed to parse fallback order ${id}:`, e);
+          return null;
+        }
+      });
+      const orders = (await Promise.all(orderPromises)).filter((o) => o !== null);
+      inMemoryDb.orders = orders;
+      return orders as any;
+    }
+  } catch (e) {
+    console.error(`KVGET Fallback error for ${key}:`, e);
   }
-  
-  // Fallback to in-memory
+
+  // Final fallback to in-memory
   if (key === "uk09_orders") return inMemoryDb.orders as any;
   if (key === "uk09_reviews") return inMemoryDb.reviews as any;
   if (key === "uk09_store_closed") return inMemoryDb.storeClosed as any;
@@ -113,11 +212,36 @@ async function kvSet(key: string, value: any) {
     } catch (e) {
       console.error(`KV SET error for key ${key}:`, e);
     }
-  } else if (key === "uk09_store_closed") {
+  } else {
+    // Persistent fallback to keyvalue.immanuel.co when Vercel KV is not connected
     try {
-      await fetch(`https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/1xv3tt2d/uk09_store_closed/${value}`, {
-        method: "POST"
-      });
+      if (key === "uk09_store_closed") {
+        await immanuelSet("uk09_store_closed", String(value));
+      } else if (key === "uk09_last_cleared_at") {
+        await immanuelSet("uk09_last_cleared_at", String(value));
+      } else if (key === "uk09_deleted_order_ids") {
+        const idsStr = Array.isArray(value) ? value.join(",") : "";
+        await immanuelSet("uk09_deleted_order_ids", idsStr);
+      } else if (key === "uk09_reviews") {
+        const json = JSON.stringify(value);
+        const b64 = toBase64URL(json);
+        await immanuelSet("uk09_reviews_b64", b64);
+      } else if (key === "uk09_orders") {
+        const activeOrders = ((value || []) as Order[]).slice(0, 100);
+        const idsStr = activeOrders.map((o) => o.id).join(",");
+        await immanuelSet("uk09_order_ids", idsStr);
+        
+        // Save each active order individually in parallel
+        await Promise.all(
+          activeOrders.map(async (order) => {
+            if (order && order.id) {
+              const json = JSON.stringify(order);
+              const b64 = toBase64URL(json);
+              await immanuelSet(`uk09_order_${order.id}`, b64);
+            }
+          })
+        );
+      }
     } catch (e) {
       console.error(`KVSET Fallback error for ${key}:`, e);
     }
