@@ -7,10 +7,9 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { MobileActionBar } from "@/components/MobileActionBar";
@@ -39,11 +38,8 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
+  console.error("Runtime error:", error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -76,6 +72,8 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
+const v = "v=20260904";
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
@@ -89,18 +87,32 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { name: "theme-color", content: "#231f1c" },
       { property: "og:site_name", content: "UK 09" },
+      { property: "og:title", content: "UK 09 — Restaurant in Bathinda, Punjab" },
+      {
+        property: "og:description",
+        content: "UK 09 is a dine-in restaurant on Green City Road, Bathinda. Open daily 10 AM–11 PM.",
+      },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://cafee09.vercel.app/" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "UK 09 — Restaurant in Bathinda, Punjab" },
     ],
     links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "canonical", href: "https://cafee09.vercel.app/" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap",
       },
+      { rel: "stylesheet", href: appCss },
+      { rel: "shortcut icon", href: `/favicon.ico?${v}` },
+      { rel: "icon", href: `/favicon.svg?${v}`, type: "image/svg+xml" },
+      { rel: "icon", href: `/favicon.ico?${v}`, sizes: "any" },
+      { rel: "icon", href: `/favicon-32x32.png?${v}`, type: "image/png", sizes: "32x32" },
+      { rel: "icon", href: `/favicon-16x16.png?${v}`, type: "image/png", sizes: "16x16" },
+      { rel: "apple-touch-icon", href: `/apple-touch-icon.png?${v}`, sizes: "180x180" },
+      { rel: "manifest", href: `/site.webmanifest?${v}` },
     ],
   }),
   shellComponent: RootShell,
@@ -130,7 +142,6 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <Navbar />
       <main id="main">
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
       </main>
       <Footer />
@@ -139,4 +150,3 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
-
