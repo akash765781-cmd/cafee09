@@ -10,23 +10,15 @@ import { LocationSection } from "@/components/LocationSection";
 import { CTASection } from "@/components/CTASection";
 import { business } from "@/lib/business";
 
-const title = "UK 09 — Restaurant in Bathinda, Punjab";
+const title = "UK 09 — Premium Restaurant & Fine Dining";
 const description =
-  "UK 09 is a dine-in restaurant on Green City Road, Bathinda. Good food, a cozy atmosphere and friendly service, open daily 10 AM–11 PM.";
+  "UK 09 is a premier dine-in restaurant. Good food, a cozy atmosphere and friendly service, open daily 10 AM–11 PM.";
 
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Restaurant",
   name: "UK 09",
-  telephone: "+917657815775",
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: "Green City Rd, inside Hotel Green In, opposite Park View Resorts, National Colony",
-    addressLocality: "Bathinda",
-    addressRegion: "Punjab",
-    postalCode: "151001",
-    addressCountry: "IN",
-  },
+  servesCuisine: ["North Indian", "Chinese", "Snacks", "Continental"],
   openingHoursSpecification: [
     {
       "@type": "OpeningHoursSpecification",

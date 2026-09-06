@@ -4,9 +4,9 @@ import { LocationSection } from "@/components/LocationSection";
 import { InfoStrip } from "@/components/InfoStrip";
 import { CTASection } from "@/components/CTASection";
 
-const title = "Location & Hours — UK 09, Bathinda";
+const title = "Dining & Hours — UK 09";
 const description =
-  "Find UK 09 on Green City Rd, inside Hotel Green In, opposite Park View Resorts, National Colony, Bathinda 151001. Open daily 10 AM–11 PM.";
+  "Visit UK 09 for fine dining, appetizing multicuisine menus, and comfortable ambiance. Open daily 10 AM–11 PM.";
 
 export const Route = createFileRoute("/location")({
   head: () => ({
@@ -26,9 +26,9 @@ function LocationPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Visit"
-        title="Where to Find UK 09"
-        intro="Green City Rd, inside Hotel Green In, opposite Park View Resorts, National Colony, Bathinda, Punjab 151001."
+        eyebrow="Dining"
+        title="Experience UK 09"
+        intro="Enjoy premium dine-in service, savory gourmet dishes, and private dining arrangements open daily 10 AM–11 PM."
       />
       <InfoStrip />
       <LocationSection />

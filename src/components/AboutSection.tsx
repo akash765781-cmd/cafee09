@@ -27,12 +27,12 @@ export function AboutSection() {
             Relax &amp; Stay Awhile
           </h2>
           <p className="mt-6 max-w-lg leading-relaxed text-cream-foreground/75">
-            UK 09 is a dine-in restaurant in Bathinda built around enjoyable food, a comfortable
-            atmosphere and friendly service.
+            UK 09 is a premier dine-in restaurant built around enjoyable food, a comfortable
+            atmosphere, and friendly service.
           </p>
           <p className="mt-4 max-w-lg leading-relaxed text-cream-foreground/75">
-            You'll find it on Green City Road — inside Hotel Green In, opposite Park View Resorts,
-            National Colony. Doors open every day from {business.hoursFull}.
+            We are dedicated to exceptional culinary standards, warm hospitality, and memorable dining
+            moments for you and your guests. Doors open every day from {business.hoursFull}.
           </p>
 
           <dl className="mt-10 grid grid-cols-2 gap-6 border-t border-cream-foreground/15 pt-8 sm:grid-cols-3">

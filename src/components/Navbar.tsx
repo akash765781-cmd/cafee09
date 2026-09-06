@@ -65,13 +65,12 @@ export function Navbar() {
               </span>
             )}
           </Link>
-          <a
-            href={business.phoneHref}
+          <Link
+            to="/order"
             className="hidden items-center gap-2 bg-primary px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-primary-foreground transition-opacity hover:opacity-90 lg:inline-flex"
           >
-            <Phone aria-hidden="true" className="size-3.5" />
-            Call
-          </a>
+            Reserve Table
+          </Link>
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}

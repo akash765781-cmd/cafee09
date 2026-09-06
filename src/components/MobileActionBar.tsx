@@ -1,24 +1,23 @@
 import { Link } from "@tanstack/react-router";
-import { MapPin, Phone, ShoppingBag } from "lucide-react";
-import { business } from "@/lib/business";
+import { Home, Info, ShoppingBag, Utensils } from "lucide-react";
 import { useCart } from "@/lib/cart";
 
 export function MobileActionBar() {
   const { itemCount } = useCart();
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-border bg-background/95 backdrop-blur-sm md:hidden">
-      <a
-        href={business.phoneHref}
+      <Link
+        to="/"
         className="flex min-h-14 flex-col items-center justify-center gap-1 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground"
       >
-        <Phone aria-hidden="true" className="size-4" />
-        Call
-      </a>
+        <Home aria-hidden="true" className="size-4" />
+        Home
+      </Link>
       <Link
         to="/menu"
         className="flex min-h-14 flex-col items-center justify-center gap-1 border-x border-border text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground"
       >
-        <ShoppingBag aria-hidden="true" className="size-4" />
+        <Utensils aria-hidden="true" className="size-4" />
         Menu
       </Link>
       <Link
@@ -35,15 +34,13 @@ export function MobileActionBar() {
         </div>
         Order
       </Link>
-      <a
-        href={business.directionsHref}
-        target="_blank"
-        rel="noreferrer"
+      <Link
+        to="/about"
         className="flex min-h-14 flex-col items-center justify-center gap-1 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground"
       >
-        <MapPin aria-hidden="true" className="size-4" />
-        Map
-      </a>
+        <Info aria-hidden="true" className="size-4" />
+        About
+      </Link>
     </div>
   );
 }

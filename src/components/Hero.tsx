@@ -21,7 +21,7 @@ export function Hero() {
 
       <div className="shell relative">
         <p className="eyebrow">
-          {business.city} • Dining &amp; Food
+          Artisan Dining &amp; Exceptional Food
         </p>
         <h1 className="mt-5 max-w-4xl text-[clamp(2.75rem,9vw,7rem)] uppercase">
           Good Food.
@@ -30,7 +30,7 @@ export function Hero() {
           <span className="text-primary">UK 09.</span>
         </h1>
         <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
-          A welcoming dine-in destination in Bathinda for flavorful food, relaxed moments and time
+          A welcoming dine-in destination for flavorful food, relaxed moments and time
           well spent with friends and family.
         </p>
 
@@ -42,15 +42,12 @@ export function Hero() {
             View menu
             <ArrowRight aria-hidden="true" className="size-4 transition-transform group-hover:translate-x-1" />
           </Link>
-          <a
-            href={business.directionsHref}
-            target="_blank"
-            rel="noreferrer"
+          <Link
+            to="/order"
             className="inline-flex min-h-13 items-center justify-center gap-2 border border-foreground/25 px-7 text-xs font-semibold uppercase tracking-[0.18em] transition-colors hover:border-foreground"
           >
-            <MapPin aria-hidden="true" className="size-4" />
-            Get directions
-          </a>
+            Order Online
+          </Link>
         </div>
 
         <p className="mt-8 text-xs uppercase tracking-[0.2em] text-muted-foreground">

@@ -11,7 +11,7 @@ export function Footer() {
             <Wordmark />
           </Link>
           <p className="mt-4 max-w-xs text-sm text-muted-foreground">
-            Restaurant in {business.city}, {business.state}. Dine-in, every day {business.hoursShort}.
+            Premier dine-in restaurant. Authentic cuisine &amp; hospitality, every day {business.hoursShort}.
           </p>
         </div>
 
@@ -32,39 +32,31 @@ export function Footer() {
         </nav>
 
         <div>
-          <h2 className="eyebrow">Visit &amp; contact</h2>
-          <address className="mt-4 space-y-3 text-sm not-italic text-muted-foreground">
-            <p className="max-w-sm">{business.address}</p>
-            <p>
-              <a href={business.phoneHref} className="text-foreground hover:text-primary">
-                {business.phoneDisplay}
-              </a>
-            </p>
-            <p>{business.plusCode}</p>
-          </address>
+          <h2 className="eyebrow">Services &amp; Hours</h2>
+          <div className="mt-4 space-y-2.5 text-sm text-muted-foreground">
+            <p>Dine-In • Takeaway • Online Orders</p>
+            <p>Open daily {business.hoursFull}</p>
+            <p className="text-xs uppercase tracking-wider text-primary font-bold">5.0 ★ Rated Dining Experience</p>
+          </div>
           <div className="mt-6 flex flex-wrap gap-3">
-            <a
-              href={business.directionsHref}
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              to="/order"
               className="border border-border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] transition-colors hover:border-primary hover:text-primary"
             >
-              Get directions
-            </a>
-            <a
-              href={business.whatsappHref}
-              target="_blank"
-              rel="noreferrer"
+              Order Online
+            </Link>
+            <Link
+              to="/menu"
               className="border border-border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] transition-colors hover:border-primary hover:text-primary"
             >
-              WhatsApp
-            </a>
+              Digital Menu
+            </Link>
           </div>
         </div>
       </div>
 
       <div className="shell mt-14 flex flex-col gap-2 border-t border-border pt-6 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between">
-        <p>© {new Date().getFullYear()} UK 09, Bathinda.</p>
+        <p>© {new Date().getFullYear()} UK 09. All rights reserved.</p>
         <p>Open daily {business.hoursFull}</p>
       </div>
     </footer>

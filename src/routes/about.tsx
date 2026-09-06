@@ -5,9 +5,9 @@ import { Gallery } from "@/components/Gallery";
 import { FoodFeature } from "@/components/FoodFeature";
 import { CTASection } from "@/components/CTASection";
 
-const title = "About UK 09 — Dine-in Restaurant in Bathinda";
+const title = "About UK 09 — Dine-in Restaurant & Culinary Experience";
 const description =
-  "UK 09 is a dine-in restaurant inside Hotel Green In on Green City Road, Bathinda — built around good food, a comfortable room and friendly service.";
+  "UK 09 is a premier dine-in restaurant built around great food, an inviting room, and exceptional hospitality.";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -29,7 +29,7 @@ function AboutPage() {
       <PageHeader
         eyebrow="About"
         title="A Place to Eat, Relax & Stay Awhile"
-        intro="A dine-in restaurant in Bathinda, open every day from 10 AM to 11 PM."
+        intro="A welcoming dine-in restaurant destination, open every day from 10 AM to 11 PM."
       />
       <AboutSection />
       <FoodFeature />

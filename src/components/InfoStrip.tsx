@@ -3,8 +3,8 @@ import { business } from "@/lib/business";
 const cells = [
   { label: "Open daily", value: business.hoursShort },
   { label: "Dine-in", value: "Available" },
-  { label: "Location", value: `${business.city}, ${business.state}` },
-  { label: "Call", value: business.phoneDisplay, href: business.phoneHref },
+  { label: "Cuisine", value: "Fresh Prep Daily" },
+  { label: "Orders & Tables", value: "Instant Booking", href: "/order" },
 ];
 
 export function InfoStrip() {

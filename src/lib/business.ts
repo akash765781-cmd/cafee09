@@ -1,25 +1,21 @@
 export const business = {
   name: "UK 09",
   type: "Dine-in restaurant",
-  city: "Bathinda",
-  state: "Punjab",
-  address:
-    "Green City Rd, inside Hotel Green In, opposite Park View Resorts, National Colony, Bathinda, Punjab 151001",
-  addressShort: "National Colony, Bathinda, Punjab 151001",
-  plusCode: "6XH3+FJ Bathinda, Punjab",
-  phoneDisplay: "+91 76578 15775",
-  phoneHref: "tel:+917657815775",
-  whatsappHref: "https://wa.me/917657815775?text=hello%20cafe%2Ci%20want%20to%20order",
+  city: "Fine Dining",
+  state: "Restaurant",
+  address: "Premium Dine-in & Online Ordering",
+  addressShort: "Dine-in Available",
+  plusCode: "Dine-in • Takeaway • Reservations",
+  phoneDisplay: "",
+  phoneHref: "/order",
+  whatsappHref: "/order",
   hoursShort: "10 AM–11 PM",
   hoursFull: "10:00 AM–11:00 PM",
   rating: "5.0",
   reviewCount: 14,
-  directionsHref:
-    "https://www.google.com/maps/dir/?api=1&destination=UK+09+Green+City+Rd+National+Colony+Bathinda+Punjab+151001",
-  mapsListingHref:
-    "https://www.google.com/maps/search/?api=1&query=UK+09+Green+City+Rd+National+Colony+Bathinda+Punjab+151001",
-  mapEmbedSrc:
-    "https://www.google.com/maps?q=UK%2009%20Green%20City%20Rd%2C%20National%20Colony%2C%20Bathinda%2C%20Punjab%20151001&output=embed",
+  directionsHref: "/menu",
+  mapsListingHref: "/menu",
+  mapEmbedSrc: "",
 } as const;
 
 export const weekdays = [
